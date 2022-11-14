@@ -1,0 +1,99 @@
+{%extends 'base.html' %} {%block body%}
+
+<form
+  method="POST"
+  action="/update_article/{{el.id}}"
+  class="m-10 lg:w-1/4"
+  enctype="multipart/form-data"
+>
+  <input type="hidden" name="category_id" id="category_id" />
+  <fieldset class="flex flex-col items-stratch gap-3">
+    <div class="form-control">
+      <label class="input-group input-group-vertical">
+        <span>Nom de l'article</span>
+        <input
+          type="text"
+          placeholder="ex : classic"
+          class="input input-bordered w-full"
+          name="name"
+          id="name"
+          value="{{el.name}}"
+        />
+      </label>
+    </div>
+    <div class="form-control">
+      <label class="input-group">
+        <span>Prix </span>
+        <input
+          type="text"
+          placeholder="€"
+          class="input input-bordered w-full"
+          name="price"
+          id="price"
+          value="{{el.prix}}"
+        />
+      </label>
+    </div>
+    <div class="flex justify-start gap-4">
+      <input name="menu" type="checkbox" {{"checked" if el.with_menu else "ss"}}
+      class="checkbox" />
+      <label class="input-group">
+        <span>Avec menus</span>
+      </label>
+    </div>
+    <div class="form-control">
+      <label class="input-group input-group-vertical">
+        <span>la recette</span>
+        <textarea
+          name="recip"
+          id="recip"
+          class="textarea textarea-bordered"
+          placeholder="Séparez les éléments avec ( , ) Elément 1, Elément 2, ... etc"
+        >
+{{el.recipes}}
+</textarea
+        >
+      </label>
+    </div>
+
+    <div class="form-control">
+      <label class="input-group">
+        <div class="flex justify-center items-center w-full">
+          <label
+            for="photo"
+            class="flex flex-col justify-center items-center w-full h-64 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed cursor-pointer dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+          >
+            <div
+              class="flex flex-col justify-center items-center p-2 text-center"
+            >
+              <div class="w-24 my-2">
+                <img
+                  id="uploadImg"
+                  class="w-full h-full m-"
+                  src="{{url_for('static', filename='images/'+ el.img_url)}}"
+                />
+              </div>
+              <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                <span class="font-semibold">Cliquez pour télécharger</span> ou
+                glisser-déposer
+              </p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                PNG, JPG or GIF
+              </p>
+            </div>
+            <input
+              accept=".png , .jpg , .jpeg , .gif"
+              name="photo"
+              id="photo"
+              type="file"
+              class="hidden"
+            />
+          </label>
+        </div>
+      </label>
+    </div>
+    <button class="btn btn-success self-end">Mise à jour</button>
+  </fieldset>
+</form>
+
+{%endblock%}
