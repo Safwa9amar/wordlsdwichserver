@@ -252,7 +252,7 @@
 
           {%for el in data%}
           <li>
-            <a href="/category/{{el.id}}"
+            <a href="{{url_for('Category',id=el.id)}}"
               ><img
                 class="w-[20px]"
                 src="{{url_for('static', filename='icons/'+el.icon_url)}}"

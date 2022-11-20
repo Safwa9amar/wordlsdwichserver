@@ -2,7 +2,7 @@
 
 <form
   method="POST"
-  action="/update_article/{{el.id}}"
+  action="{{url_for('UpdateArticle',id=el.id)}}"
   class="m-10 lg:w-1/4"
   enctype="multipart/form-data"
 >

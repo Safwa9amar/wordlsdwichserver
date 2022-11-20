@@ -59,7 +59,7 @@
               id="delCategory"
               delete-data="{{el.id}}"
               href="#my-modal-2"
-              delete_url="/delete/{{el.id}}"
+              delete_url="/dashboard/delete/{{el.id}}"
               class="btn btn-xs btn-outline btn-error"
             >
               <i class="fa-solid fa-trash mx-2"></i>Retirer
@@ -84,7 +84,7 @@
 
       <form
         id="category"
-        action="/categories"
+        action="{{url_for('showCatgeories')}}"
         method="POST"
         enctype="multipart/form-data"
       >

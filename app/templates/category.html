@@ -46,7 +46,7 @@
 
         <th>
           <a
-            href="/update_article/{{el.id}}"
+            href="{{url_for('UpdateArticle', id=el.id)}}"
             class="btn btn-xs btn-outline btn-success"
           >
             <i class="fa-solid fa-pen-to-square mx-2"></i>Éditer
@@ -54,7 +54,7 @@
           <a
             href="#my-modal-2"
             delete-data="{{el.id}}"
-            delete_url="/delete_article/{{el.id}}"
+            delete_url="{{url_for('DeleteArticle', id = el.id)}}"
             class="btn btn-xs btn-outline btn-error"
           >
             <i class="fa-solid fa-trash mx-2"></i>Retirer
@@ -76,7 +76,7 @@
     <h3 class="text-lg font-bold">Ajouter des éléments à la liste</h3>
     <form
       method="POST"
-      action="/category/{{item.id}}"
+      action="{{url_for('Category', id = item.id)}}"
       class="m-10"
       enctype="multipart/form-data"
     >

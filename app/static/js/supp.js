@@ -11,7 +11,7 @@ setSuppStatus.forEach((el) => {
     }
 
     el.addEventListener("change", () => {
-      fetch(`http://${document.domain}:${location.port}/edit_sup_status`, {
+      fetch(`https://${document.domain}:${location.port}/dashboard/edit_sup_status`, {
         mode: "cors",
         method: "POST",
         headers: {

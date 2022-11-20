@@ -11,10 +11,10 @@
         />
       </figure>
       <div class="card-body">
-        <h2 class="stat-value"><a href="/categories">Menus</a></h2>
+        <h2 class="stat-value"><a href="{{url_for('showCatgeories')}}">Menus</a></h2>
         <p>{{categories_data|length}} Catégories</p>
         <div class="card-actions justify-end">
-          <a class="btn btn-primary" href="/categories">Voire</a>
+          <a class="btn btn-primary" href="{{url_for('showCatgeories')}}">Voire</a>
         </div>
       </div>
     </div>
@@ -26,10 +26,10 @@
         />
       </figure>
       <div class="card-body">
-        <h2 class="stat-value"><a href="/orders">Ordres</a></h2>
+        <h2 class="stat-value"><a href="{{url_for('orders')}}">Ordres</a></h2>
         <p>{{orders_data|length}} Order</p>
         <div class="card-actions justify-end">
-          <a class="btn btn-primary" href="/orders">Voire</a>
+          <a class="btn btn-primary" href="{{url_for('orders')}}">Voire</a>
         </div>
       </div>
     </div>
@@ -41,10 +41,10 @@
         />
       </figure>
       <div class="card-body">
-        <h2 class="stat-value"><a href="/clients">Clientes</a></h2>
+        <h2 class="stat-value"><a href="{{url_for('clients')}}">Clientes</a></h2>
         <p>{{clients_data|length}} client</p>
         <div class="card-actions justify-end">
-          <a class="btn btn-primary" href="/clients">Voire</a>
+          <a class="btn btn-primary" href="{{url_for('clients')}}">Voire</a>
         </div>
       </div>
     </div>

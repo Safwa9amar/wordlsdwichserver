@@ -28,10 +28,10 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 # images folder
-IMAGES_FOLDER = 'static/images'
+IMAGES_FOLDER = 'app/static/images'
 app.config['IMAGES_FOLDER'] = IMAGES_FOLDER
 # icons folder
-ICONS_FOLDER = 'static/icons'
+ICONS_FOLDER = 'app/static/icons'
 app.config['ICONS_FOLDER'] = ICONS_FOLDER
 
 
@@ -210,7 +210,7 @@ def login():
         if user and user.verify_password(password):
             print('login succes')
             login_user(user)
-            return redirect('/')
+            return redirect(url_for('dashbord'))
         else:
             flash("Login ivalido!")
 
@@ -545,7 +545,7 @@ def update_supp(id):
 
         db.session.commit()
         try:
-            return redirect('/supplement')
+            return redirect(url_for('supplement'))
         except:
             print('some erroe in updating')
     else:
@@ -670,7 +670,7 @@ def showCatgeories():
                 icon_url=icon_filename
             ))
             db.session.commit()
-            return redirect('/categories')
+            return redirect(url_for('showCatgeories'))
         except:
             print('some error')
     dd = Categories.query.order_by(Categories.id).all()
@@ -721,7 +721,7 @@ def Category(id):
                     FoodID=food.id,
                 ))
             db.session.commit()
-            return redirect(f'/category/{id}')
+            return redirect(url_for('Category', id=id))
         except:
             print('some error')
     else:
@@ -742,7 +742,7 @@ def Delete(id):
     except:
         print('some error')
 
-    return redirect('/categories')
+    return redirect(url_for('showCatgeories'))
 
 
 @app.route('/delete_article/<int:id>')
@@ -762,8 +762,7 @@ def DeleteArticle(id):
             db.session.delete(item)
 
     db.session.commit()
-    return redirect(f'/category/{item_to_delete.categoryID}')
-
+    return redirect(url_for('Category', id = item_to_delete.categoryID ))
 
 @app.route('/update_category/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -805,7 +804,7 @@ def Update(id):
 
         db.session.commit()
         try:
-            return redirect('/categories')
+            return redirect(url_for('showCatgeories'))
         except:
             print('some erroe in updating')
 
@@ -882,7 +881,7 @@ def UpdateArticle(id):
 
             try:
                 db.session.commit()
-                return redirect(f'/category/{item_to_update.categoryID}')
+                return redirect(url_for('Category',id=item_to_update.categoryID))
             except:
                 print('some erroe in updating')
 
