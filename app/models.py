@@ -104,16 +104,16 @@ class Supplement(db.Model):
 class ItemSupplement(db.Model):
     __tablename__ = 'item_supplement'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
+    name = db.Column(db.String(150), nullable=False)
     Prix = db.Column(db.Float, nullable=False)
     isAvailable = db.Column(db.Boolean, unique=False, default=True)
-    img_url = db.Column(db.String, nullable=False)
+    img_url = db.Column(db.String(255), nullable=False)
     max = db.Column(db.Integer, nullable=False)
     # Supplement id
     supplementID = db.Column(db.Integer, ForeignKey("Supplement.id"))
     supplement = db.relationship('Supplement', backref='item_supplement')
     #
-    categoryIDs = db.Column(db.String, nullable=False)
+    categoryIDs = db.Column(db.String(255), nullable=False)
     # categoryID = db.Column(db.Integer, ForeignKey("categories.id"))
     # category = db.relationship('Categories', backref='item_supplement')
 
@@ -127,9 +127,9 @@ class ItemSupplement(db.Model):
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, nullable=False)
-    order = db.Column(db.String, nullable=False)
+    order = db.Column(db.String(255), nullable=False)
     order_date = db.Column(db.DateTime(timezone=True), default=datetime.now)
-    DamandeType = db.Column(db.String, nullable=False)
+    DamandeType = db.Column(db.String(255), nullable=False)
     status = db.Column(db.Integer, default=1)
 
     def __repr__(self) -> str:
@@ -158,11 +158,11 @@ class Food(db.Model):
     # food data
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
-    prix = db.Column(db.String, nullable=False)
+    prix = db.Column(db.String(255), nullable=False)
     img_url = db.Column(db.String(200), nullable=False)
     Categorie = db.Column(db.String(200), nullable=False)
     rating = db.Column(db.Integer, nullable=True)
-    recipes = db.Column(db.String, nullable=False)
+    recipes = db.Column(db.String(255), nullable=False)
     with_menu = db.Column(db.Boolean, default=False)
     # category id
     categoryID = db.Column(db.Integer, ForeignKey("categories.id"))

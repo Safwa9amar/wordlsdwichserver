@@ -11,7 +11,7 @@ from datetime import  timedelta
 
 
 def deleteTabel(tableInstance):
-    eng = create_engine('sqlite:///database.db')
+    eng = create_engine('sqlite:///site.db')
     tableInstance.__table__.drop(eng)
 
 
@@ -22,7 +22,9 @@ app.config["JWT_SECRET_KEY"] = "mU0acnVXyjYMXkOlcFhJohofJOf7iTXy"
 # socketio = SocketIO(app, cors_allowed_origins="*")
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///database.db'
+# app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://bsyuwuwa_admin:25.yp3q)4?Mq@localhost/bsyuwuwa_store"
+
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
