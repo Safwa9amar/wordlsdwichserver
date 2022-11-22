@@ -20,13 +20,13 @@ from app import db,ma
 class Customer(db.Model):
     __tablename__ = 'customer'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(80))
-    Nom = db.Column(db.String(80),  nullable=False)
-    Prenom = db.Column(db.String(80), nullable=False)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255))
+    Nom = db.Column(db.String(255),  nullable=False)
+    Prenom = db.Column(db.String(255), nullable=False)
     Tel = db.Column(db.Integer, unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    adress = db.Column(db.String(120), unique=True, nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    adress = db.Column(db.String(255), unique=True, nullable=False)
     join_date = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __init__(self, username, password, Nom, email, Prenom, Tel, adress):
