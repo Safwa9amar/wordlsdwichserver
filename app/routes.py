@@ -541,7 +541,7 @@ def update_supp(id):
         item_to_update.name = request.form['name']
         item_to_update.categoryIDs = request.form['category']
         item_to_update.supplementID = request.form['id_supp']
-        item_to_update.img_url = img_filename
+        item_to_update.img_url = f'supp_{secure_filename(updated_uploaded_image.filename)}'
 
         db.session.commit()
         try:
