@@ -1,6 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
+  let notif_indicator = document.getElementById("notif_indicator");
+
   // const socket = io(`http://${document.domain}:${location.port}/test`);
   const url = `${location.origin}/dashboard`;
+  // const url = `${location.origin}`;
+
+  let audio = new Audio(`${url}/static/sounds/notifications-sound.mp3`);
+  // async function fetshNotification
 
   let fetshNotif = async () => {
     let res = await fetch(`${url}/notifications`, {
@@ -9,14 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }).then((res) => res.json());
     return res;
   };
-  try {
-    let notification_indicator = document.getElementById(
-      "notification_indicator"
-    );
-
-    // let notification_area = document.getElementById("notification_area");
-    let notif_indicator = document.getElementById("notif_indicator");
-  } catch (error) {}
+  
 
   // socket.emit("message", {
   //   test: "server side connected from socket file",
@@ -74,76 +73,82 @@ document.addEventListener("DOMContentLoaded", () => {
           let span = document.createElement("span");
           span.innerHTML = html;
           notification_area.appendChild(span);
+          // import notification sound
+          let storage = localStorage.getItem("isActivated");
+          if (storage === "true") {
+            !el.isViewed && audio.play();
+          }
 
-          try {
-            // last camnnd appending
+          //     try {
+          //       // last camnnd appending
 
-            let template = `
-          <div class="w-full self-start flex items-start gap-4 justify-between">
-            <div class="flex gap-2">
-              <div class="w-32">
-                <p>${el.custumer_nom} ${el.custumer_prenom}.</p>
-                <a data-attr="${el.id}" href="${url}/orders?order=${
-              el.order.id
-            }" class="text-warning font-bold">#${el.order.id}</a>
-              </div>
-            </div>
-          <div class="flex gap-1">
-                  <p class="font-bold">${el.order_date}</p>
-                </div>
-            <div class="flex items-center">
-            ${
-              (el.order.status === 2 &&
-                '<button class="btn btn-xs btn-outline btn-info">Approuvé</button>') ||
-              (el.order.status === 3 &&
-                '<button class="btn btn-xs btn-outline btn-success">livré</button>') ||
-              (el.order.status === 4 &&
-                '<button class="btn btn-xs btn-outline btn-btn-ghost">annulé</button>') ||
-              (el.order.status === 1 &&
-                '<div class="btn btn-xs btn-outline btn-warning">en attendant</div>')
-            }
-           
-             <div class="dropdown dropdown-hover">
-                <label tabindex="0" class="btn btn-xs m-1">...</label>
-                  ${
-                    (el.order.status === 1 &&
-                      ` 
-              <ul
-                tabindex="0"
-                class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
-              >
-            <li>
-              <a
-                class="text-primary"
-                href="${url}/order_status?accept=${el.order.id}"
-                ><i class="fa-regular fa-circle-check"></i>Accepet order</a
-              >
-            </li>
-            <li>
-              <a
-                class="text-error"
-                href="${url}/order_status?reject=${el.order.id}"
-                ><i class="fa-regular fa-circle-xmark"></i> Reject order</a
-              >
-              </li>
-            </ul>
-            `) ||
-                    ""
-                  }
-          </div>
-        </div>
-      </div>
-      
-          `;
-            let span2 = document.createElement("span");
-            span2.innerHTML = template;
-            document.getElementById("recent").append(span2);
-          } catch (error) {}
+          //       let template = `
+          //     <div class="w-full self-start flex items-start gap-4 justify-between">
+          //       <div class="flex gap-2">
+          //         <div class="w-32">
+          //           <p>${el.custumer_nom} ${el.custumer_prenom}.</p>
+          //           <a data-attr="${el.id}" href="${url}/orders?order=${
+          //         el.order.id
+          //       }" class="text-warning font-bold">#${el.order.id}</a>
+          //         </div>
+          //       </div>
+          //     <div class="flex gap-1">
+          //             <p class="font-bold">${el.order_date}</p>
+          //           </div>
+          //       <div class="flex items-center">
+          //       ${
+          //         (el.order.status === 2 &&
+          //           '<button class="btn btn-xs btn-outline btn-info">Approuvé</button>') ||
+          //         (el.order.status === 3 &&
+          //           '<button class="btn btn-xs btn-outline btn-success">livré</button>') ||
+          //         (el.order.status === 4 &&
+          //           '<button class="btn btn-xs btn-outline btn-btn-ghost">annulé</button>') ||
+          //         (el.order.status === 1 &&
+          //           '<div class="btn btn-xs btn-outline btn-warning">en attendant</div>')
+          //       }
+
+          //        <div class="dropdown dropdown-hover">
+          //           <label tabindex="0" class="btn btn-xs m-1">...</label>
+          //             ${
+          //               (el.order.status === 1 &&
+          //                 `
+          //         <ul
+          //           tabindex="0"
+          //           class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+          //         >
+          //       <li>
+          //         <a
+          //           class="text-primary"
+          //           href="${url}/order_status?accept=${el.order.id}"
+          //           ><i class="fa-regular fa-circle-check"></i>Accepet order</a
+          //         >
+          //       </li>
+          //       <li>
+          //         <a
+          //           class="text-error"
+          //           href="${url}/order_status?reject=${el.order.id}"
+          //           ><i class="fa-regular fa-circle-xmark"></i> Reject order</a
+          //         >
+          //         </li>
+          //       </ul>
+          //       `) ||
+          //               ""
+          //             }
+          //     </div>
+          //   </div>
+          // </div>
+
+          //     `;
+          //       let span2 = document.createElement("span");
+          //       span2.innerHTML = template;
+          //       document.getElementById("recent").append(span2);
+          //     } catch (error) {}
         });
       })
       .finally(() => {
         let edit_notif = document.querySelectorAll("[data-attr]");
-        edit_notif.forEach((el) =>
+        edit_notif.forEach((el) => {
+          el.removeEventListener("click", () => {});
           el.addEventListener("click", async (e) => {
             let notif_id = el.getAttribute("data-attr");
             await fetch(`${url}/notifications`, {
@@ -156,8 +161,8 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             console.log(notif_id);
-          })
-        );
+          });
+        });
       });
   }, 5000);
 });

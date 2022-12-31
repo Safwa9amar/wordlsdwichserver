@@ -10,15 +10,15 @@ from marshmallow_sqlalchemy.fields import Nested
 
 # from os.path import join, dirname, realpath
 import os
-from flask import  render_template, url_for, request, redirect, jsonify, make_response, flash, Response
+from flask import render_template, url_for, request, redirect, jsonify, make_response, flash, Response
 from flask_cors import CORS, cross_origin
-from sqlalchemy import  desc
+from sqlalchemy import desc
 
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 
 
-from flask_jwt_extended import create_access_token, create_refresh_token , decode_token
-from dateutil.tz import  tzlocal
+from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
+from dateutil.tz import tzlocal
 
 
 login_manager = LoginManager()
@@ -33,7 +33,6 @@ app.config['IMAGES_FOLDER'] = IMAGES_FOLDER
 # icons folder
 ICONS_FOLDER = 'app/static/icons'
 app.config['ICONS_FOLDER'] = ICONS_FOLDER
-
 
 
 @login_manager.user_loader
@@ -53,6 +52,9 @@ def get_client_order():
         client_token = decode_token(data['user'])['sub']
         client = Customer.query.filter_by(username=str(client_token)).first()
         order = data['order']
+        Note = data['Note']
+        # print(order)
+
         DamandeType = data['DamandeType']
         if client:
             order_data = []
@@ -63,6 +65,8 @@ def get_client_order():
                 isMenu = el['isMenu']
                 unSelectedRecipes = el['unSelectedRecipes']
                 supplement = el['supplement']
+                SelectedBoisson = el['SelectedBoisson']
+
                 order_data.append(
                     {
                         "category_id": category_id,
@@ -70,28 +74,30 @@ def get_client_order():
                         "amount": amount,
                         "isMenu": isMenu,
                         "unSelectedRecipes": unSelectedRecipes,
-                        "supplement": supplement
+                        "supplement": supplement,
+                        "SelectedBoisson": SelectedBoisson
                     }
                 )
-                order = Order(
-                    customer_id=client.id,
-                    order=str(order_data),
-                    DamandeType=str(DamandeType)
-                )
-                db.session.flush()
-                db.session.add(order)
-                db.session.commit()
-                print(order.id)
-                notif = Notification(
-                    customer_id=client.id,
-                    order_id=order.id,
-                )
-                db.session.add(notif)
-                db.session.commit()
+            order = Order(
+                customer_id=client.id,
+                order=str(order_data),
+                DamandeType=str(DamandeType),
+                Note = Note
+            )
+            db.session.flush()
+            db.session.add(order)
+            db.session.commit()
+            # print(order.id)
+            notif = Notification(
+                customer_id=client.id,
+                order_id=order.id,
+            )
+            db.session.add(notif)
+            db.session.commit()
 
             return {"client_id": client.id, "order": order_data, "isConfirmed": True, 'OrderNum': order.id}
         else:
-            print({"client_id": client.id, "order": order_data})
+            # print({"client_id": client.id, "order": order_data})
             return {"client_id": client.id, "order": order_data}
 
 
@@ -121,6 +127,7 @@ def registre_client():
                     "email": client.email,
                     "Prenom": client.Prenom,
                     "Tel": client.Tel,
+                    "adress": LivraisonAdressSchema().dump(LivraisonAdress.query.filter_by(id=client.adress).first()),
                     "last_order": OrderSchema().dump(Order.query.order_by(Order.id.desc()).filter_by(customer_id=client.id).first())
 
                 }
@@ -145,6 +152,7 @@ def registre_client():
                         "email": client.email,
                         "Prenom": client.Prenom,
                         "Tel": client.Tel,
+                        "adress": LivraisonAdressSchema().dump(LivraisonAdress.query.filter_by(id=client.adress).first()),
                         "last_order": OrderSchema().dump(Order.query.order_by(Order.id.desc()).filter_by(customer_id=client.id).first())
                     }
                     return jsonify(access_token=access_token, refresh_token=refresh_token, userData=userData), 200
@@ -319,10 +327,10 @@ def confirmerDeliver():
             identity = decode_token(json['refrech'])['sub']
             client = Customer.query.filter_by(username=identity).first()
             if (client):
-                print(client)
+                # print(client)
                 confirm_order.status = 3
                 db.session.commit()
-                print(Order.query.get_or_404(id).status)
+                # print(Order.query.get_or_404(id).status)
 
     return ""
 
@@ -351,6 +359,8 @@ def api():
             'static', filename=f"images/{output['img_url']}", _external=True)
         icon = url_for(
             'static', filename=f"icons/{output['icon_url']}", _external=True)
+        cutting_off = output['cutting_off']
+        cutting_off_status = output['cutting_off_status']
         list = []
 
         for food_id in output['food_category']:
@@ -367,7 +377,7 @@ def api():
                     for recip in recipes:
                         for r_id in out['_recipes']:
                             if recip['id'] == int(r_id):
-                                print(recip)
+                                # print(recip)
                                 id = recip['id']
                                 name = recip['name']
                                 isCheked = recip['isCheked']
@@ -379,7 +389,7 @@ def api():
             el.pop('_recipes')
 
         category = {'id': _id, 'name':  str(_name),
-                    'img': str(img), 'icon': str(icon), 'list': list, 'with_menu': with_menu}
+                    'img': str(img), 'icon': str(icon), 'cutting_off' : cutting_off, 'cutting_off_status' : cutting_off_status ,'with_menu': with_menu ,'list': list}
         newOutputs.append(category)
     # print(recipes)
 
@@ -419,19 +429,28 @@ def orders():
         full_order_data = []
         recip_arr = []
         montants = []
+        # print(detaills)
+
         for detaill in detaills:
+
+            try:
+                Boisson = detaill['SelectedBoisson'] if detaill['isMenu'] else None
+            except:
+                Boisson = None
             supp_arr = []
             totalSupp = 0
             if detaill['supplement'] != None:
-                for supp in detaill['supplement']:
-                    supp_item = ItemSupplement.query.filter_by(
-                        id=supp['item_id']).first()
-                    print(supp_item)
+                try:
+                    for supp in detaill['supplement']:
+                        supp_item = ItemSupplement.query.filter_by(
+                            id=supp['item_id']).first()
 
-                    supp_arr.append(
-                        {'supp': supp_item, 'count': supp['count']})
-                    totalSupp = totalSupp + \
-                        (supp_item.Prix * int(supp['count']))
+                        supp_arr.append(
+                            {'supp': supp_item, 'count': supp['count']})
+                        totalSupp = totalSupp + \
+                            (supp_item.Prix * int(supp['count']))
+                except:
+                    print('no supp')
 
             montants.append(totalSupp * int(detaill['amount']))
 
@@ -447,6 +466,7 @@ def orders():
                 "food": Food.query.filter_by(id=detaill['food_id']).first(),
                 "isMenu": detaill['isMenu'],
                 "amount": detaill['amount'],
+                "Boisson": Boisson,
                 "unSelectedRecipes": recip_arr,
                 "supplement": supp_arr,
                 "totalSupp": totalSupp
@@ -457,19 +477,20 @@ def orders():
         total = 0
         for montant in montants:
             total += float(montant)
+        if costumer != None:
+            order_data = {
+                "order_id": order.id,
+                "DamandeType": ast.literal_eval(order.DamandeType),
+                "date": order.order_date.astimezone(tzlocal()),
+                "client": costumer,
+                "adress": costumer.adress,
+                "montants": total,
+                "status": order.status,
+                "full_order_data": full_order_data,
+                "Note": order.Note
+            }
 
-        order_data = {
-            "order_id": order.id,
-            "DamandeType": ast.literal_eval(order.DamandeType),
-            "date": order.order_date.astimezone(tzlocal()),
-            "client": costumer,
-            "adress": costumer.adress,
-            "montants": total,
-            "status": order.status,
-            "full_order_data": full_order_data
-        }
-
-        final_data.append(order_data)
+            final_data.append(order_data)
     # print(final_data)
 
     try:
@@ -490,11 +511,35 @@ def orders():
     return render_template('orders.html', client_orders=final_data)
 
 
+@app.route('/deleteOrder/<int:id>', methods=['POST', 'GET'])
+@login_required
+def deleteOrder(id):
+    order = Order.query.filter_by(id=id).first()
+    Notification.query.filter_by(customer_id=order.customer_id).delete()
+    db.session.delete(order)
+    db.session.commit()
+    return redirect(url_for('orders'))
+
+
+
+
 @app.route('/clients')
 @login_required
 def clients():
     clients_data = Customer.query.all()
     return render_template('clients.html', clients_data=clients_data, Order=Order)
+
+
+@app.route('/deleteClient/<int:id>', methods=['POST', 'GET'])
+@login_required
+def deleteClient(id):
+    client = Customer.query.filter_by(id=id).first()
+    Notification.query.filter_by(customer_id=id).delete()
+    Order.query.filter_by(customer_id=id).delete()
+    db.session.delete(client)
+    db.session.commit()
+    return redirect(url_for('clients'))
+
 
 
 @app.route('/edit_sup_status', methods=['POST'])
@@ -504,6 +549,17 @@ def edit_sup_status():
     print(ItemSupplementSchema().dump(item))
     item.isAvailable = data['status']
     db.session.commit()
+    return ""
+
+
+@app.route('/edit_food_status', methods=['POST'])
+def edit_food_status():
+    data = request.get_json()
+    item = Food.query.get_or_404(int(data['id']))
+    # print(FoodSchema().dump(item))
+    item.etat = data['status']
+    db.session.commit()
+    # print('qsdqsd')
     return ""
 
 
@@ -525,12 +581,11 @@ def update_supp(id):
     item_to_update = ItemSupplement.query.get_or_404(id)
     if request.method == 'POST':
         updated_uploaded_image = request.files['image']
-
         if updated_uploaded_image.filename != '':
-            img_filename = updated_uploaded_image.filename
+            img_filename =  f'supp_{secure_filename(updated_uploaded_image.filename)}'
 
             updated_img_file_path = os.path.join(
-                app.config['IMAGES_FOLDER'], f'supp_{secure_filename(updated_uploaded_image.filename)}')
+                app.config['IMAGES_FOLDER'], img_filename)
             # set the file path
 
             updated_uploaded_image.save(updated_img_file_path)
@@ -541,7 +596,8 @@ def update_supp(id):
         item_to_update.name = request.form['name']
         item_to_update.categoryIDs = request.form['category']
         item_to_update.supplementID = request.form['id_supp']
-        item_to_update.img_url = f'supp_{secure_filename(updated_uploaded_image.filename)}'
+        item_to_update.img_url = img_filename
+        item_to_update.Prix = request.form['price']
 
         db.session.commit()
         try:
@@ -728,7 +784,7 @@ def Category(id):
         print('...')
         # handle add item  to category requests
     food_db_data = Food.query.filter(Food.categoryID == id)
-
+    # print(FoodSchema().dump(food_db_data.first()))
     return render_template('category.html', item=item_category, food_query=food_db_data)
 
 
@@ -762,7 +818,8 @@ def DeleteArticle(id):
             db.session.delete(item)
 
     db.session.commit()
-    return redirect(url_for('Category', id = item_to_delete.categoryID ))
+    return redirect(url_for('Category', id=item_to_delete.categoryID))
+
 
 @app.route('/update_category/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -799,6 +856,9 @@ def Update(id):
             icon_filename = item_to_update.icon_url
 
         item_to_update.name = request.form['name']
+        item_to_update.cutting_off = request.form['cutting_off']
+        
+        item_to_update.cutting_off_status = True if len(request.form.getlist('cutting_off_status')) > 0 else False
         item_to_update.icon_url = icon_filename
         item_to_update.img_url = img_filename
 
@@ -835,7 +895,7 @@ def UpdateArticle(id):
                 filename = f'food_{secure_filename(article_uploaded_image.filename)}'
 
                 article_img_file_path = os.path.join(
-                    app.config['IMAGES_FOLDER'], article_uploaded_image.filename)
+                    app.config['IMAGES_FOLDER'], filename)
                 # set the file path
                 article_uploaded_image.save(article_img_file_path)
             else:
@@ -881,7 +941,7 @@ def UpdateArticle(id):
 
             try:
                 db.session.commit()
-                return redirect(url_for('Category',id=item_to_update.categoryID))
+                return redirect(url_for('Category', id=item_to_update.categoryID))
             except:
                 print('some erroe in updating')
 
@@ -897,8 +957,10 @@ def MyNotification():
         data = request.get_json()
         viewedNotif = data.get('viwedArr')
         RededNotif = data.get('readed_notif_id')
+        print(data)
         if viewedNotif:
             for el_id in viewedNotif:
+                print(el_id)
                 selected_notif = Notification.query.get_or_404(int(el_id))
                 try:
                     selected_notif.isViewed = True
@@ -917,7 +979,7 @@ def MyNotification():
         notif_arr = []
         try:
             for el in notif:
-                print(NotificationSchema().dump(el))
+                # print(NotificationSchema().dump(el))
                 obj = {
                     "id": el.id,
                     "isReaded": el.isReaded,
@@ -935,10 +997,217 @@ def MyNotification():
             return jsonify({"res": "nodata"})
 
 
+@app.route('/CommandType', methods=["GET", "POST"])
+def GetCommandType():
+    if request.method == "POST":
+        data = request.get_json()
+        id = data.get('id')
+        isChecked = data.get('isCheked')
+        el = CommandType.query.get_or_404(id)
+        el.isCheked = isChecked
+        db.session.commit()
+    data = CommandType.query.all()
+    return jsonify(CommandTypeSchema().dump(data, many=True))
+
+
 # @socketio.on('message', namespace='/test')
 # def test(data):
 #     emit('message', 'test', broadcast=True)
 #     print("recived")
+
+@app.route('/settings')
+@ login_required
+def settings():
+    LivraisonAdrrs = LivraisonAdress.query.all()
+    Work__Hours = WorkHours.query.all()
+    contactInfo = Contact.query.first()
+    SoundNotification = notificationSound.query.first()
+    client_status = clientStatus.query.first()
+    
+    return render_template('settings.html',  DeleveryAdress=LivraisonAdrrs, WorkHours=Work__Hours, contactInfo=contactInfo, SoundNotification=SoundNotification, client_status=client_status)
+
+
+@app.route('/settings/api/faris', methods=["GET", "POST"])
+def Frais():
+    if request.method == "POST":
+        data = request.get_json()
+        frais = data.get('livraisonPrix')
+        el = FraisDeLivraison.query.get_or_404(1)
+        print(el.price)
+        if el.price != frais:
+            el.price = frais
+            db.session.commit()
+    if request.method == "GET":
+        data = FraisDeLivraison.query.all()
+        print(data)
+        return jsonify(FraisDeLivraisonSchema().dump(data, many=True))
+    return render_template('settings.html')
+
+
+@app.route('/settings/api/livraison_adresses', methods=["GET", "POST"])
+def LivraisonAdr():
+    if request.method == "POST":
+        data = request.get_json()
+        # check if the data is already in the database
+        for el in data:
+            q = LivraisonAdress.query.filter_by(id=el.get('id')).first()
+            if q:
+                # then compare the price and name if any change update the database
+                if q.price != el.get('price') or q.name != el.get('name'):
+                    q.price = el.get('price')
+                    q.name = el.get('name')
+                    q.frais_price = el.get('frais_price')
+                    db.session.commit()
+                continue
+            else:
+                new_el = LivraisonAdress(
+                    name=el.get('name'), price=el.get('price'), frais_price=el.get('frais_price')
+                )
+                db.session.add(new_el)
+                db.session.commit()
+    if request.method == "GET":
+        data = LivraisonAdress.query.all()
+        print(data)
+        return jsonify(LivraisonAdressSchema().dump(data, many=True))
+    return render_template('settings.html')
+
+
+@app.route('/settings/api/del_livraison_adresses/<int:id>', methods=["GET", "POST"])
+@ login_required
+def DelLivraisonAdr(id):
+    # delete the livraison adress from the database by id
+    item_to_delete = LivraisonAdress.query.get_or_404(id)
+    db.session.delete(item_to_delete)
+    db.session.commit()
+    # ridirect to the settings page
+    return redirect(url_for('settings'))
+
+
+@app.route('/settings/api/WorkHours', methods=["GET"])
+def Get_Work_Hours():
+    if request.method == "GET":
+        data = WorkHours.query.all()
+        print(data[0].dayName)
+        return jsonify(WorkHoursSchema().dump(data, many=True))
+
+
+@app.route('/settings/api/WorkHours', methods=["GET", "POST"])
+def Work_Hours():
+    if request.method == "POST":
+        formData = request.get_json()
+        for el in formData:
+            id = el.get('id')
+            day = el.get('day')
+            start = el.get('start')
+            end = el.get('end')
+            q = WorkHours.query.filter_by(id=id).first()
+            if q:
+                if q.from_hour != start or q.to_hour != end:
+                    q.dayName = day
+                    q.from_hour = start
+                    q.to_hour = end
+                    db.session.commit()
+            else:
+                newData = WorkHours(
+                    dayName=day,
+                    from_hour=start,
+                    to_hour=end,
+                )
+                db.session.add(newData)
+                db.session.commit()
+    if request.method == "GET":
+        data = WorkHours.query.all()
+        print(data[0].dayName)
+        return jsonify(WorkHoursSchema().dump(data, many=True))
+    return jsonify({"res": "ok"})
+
+
+@app.route('/settings/api/DelWorkHours/<int:id>', methods=["GET", "POST"])
+@ login_required
+def DelWorkHours(id):
+    item_to_delete = WorkHours.query.get_or_404(id)
+    print(item_to_delete)
+    db.session.delete(item_to_delete)
+    db.session.commit()
+    return redirect(url_for('settings'))
+
+
+@app.route('/settings/api/contact_info', methods=["GET", "POST"])
+def PostContact():
+    if request.method == "POST":
+        adresse = request.form.get('adresse')
+        tel1 = request.form.get('tel1')
+        tel2 = request.form.get('tel2')
+        mail = request.form.get('mail')
+        facebook = request.form.get('facebook')
+        instagram = request.form.get('instagram')
+        # check if the data is already in the database
+        q = Contact.query.filter_by(id=1).first()
+        q.adresse = adresse
+        q.tel1 = tel1
+        q.tel2 = tel2
+        q.mail = mail
+        q.facebook = facebook
+        q.instagram = instagram
+        db.session.commit()
+    if request.method == "GET":
+        data = Contact.query.all()
+        return jsonify(ContactSchema().dump(data, many=True))
+    return render_template('settings.html')
+
+
+@app.route('/settings/api/notification', methods=["GET", "POST"])
+def soundNotif():
+    if request.method == "POST":
+        data = request.get_json()
+        isActivated = data.get('isActivated')
+        el = notificationSound.query.get_or_404(1)
+        if el.isActivated != isActivated:
+            el.isActivated = isActivated
+            db.session.commit()
+        return jsonify({"res": "ok"})
+    if request.method == "GET":
+        # return the notification as json
+        data = notificationSound.query.all()
+        return jsonify(notificationSoundSchema().dump(data, many=True))
+
+
+@app.route('/settings/api/livraison_adresses_status', methods=["POST", "GET"])
+def livraison_adresses_status():
+    if request.method == "POST":
+        data = request.get_json()
+        print(data)
+        isActivated = data.get('status')
+        id = data.get('id')
+        el = LivraisonAdress.query.filter_by(id=id).first()
+        print(isActivated)
+        el.isActived = isActivated
+        db.session.commit()
+        return jsonify(data)
+
+
+
+@app.route('/client_status')
+def client_status():
+    data = clientStatus.query.first()
+    if request.method == "GET":
+        return jsonify(clientStatusSchema().dump(data))
+    if request.method == "POST":
+        formData = request.get_json()
+        for el in formData:
+            id = el.get('id')
+            status = el.get('status')
+            q = clientStatus.query.filter_by(id=id).first()
+            if q:
+                if q.isActivated != status:
+                    q.isActivated = status
+                    db.session.commit()
+            else:
+                newData = clientStatus(
+                    isActivated=status,
+                )
+                db.session.add(newData)
+                db.session.commit()
 
 
 @ app.errorhandler(404)

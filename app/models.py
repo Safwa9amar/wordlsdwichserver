@@ -5,7 +5,7 @@ from datetime import datetime
 # from os.path import join, dirname, realpath
 from sqlalchemy import ForeignKey
 
-from flask_login import  UserMixin
+from flask_login import UserMixin
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -13,21 +13,24 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # from docx import Document
 
 from datetime import datetime
-from app import db,ma
-
+from app import db, ma
 
 
 class Customer(db.Model):
     __tablename__ = 'customer'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(255), unique=True, nullable=False)
-    password = db.Column(db.String(255))
-    Nom = db.Column(db.String(255),  nullable=False)
-    Prenom = db.Column(db.String(255), nullable=False)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(80))
+    Nom = db.Column(db.String(80),  nullable=False)
+    Prenom = db.Column(db.String(80), nullable=False)
     Tel = db.Column(db.Integer, unique=True, nullable=False)
-    email = db.Column(db.String(255), unique=True, nullable=False)
-    adress = db.Column(db.String(255), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    # adress = db.Column(db.String(120), unique=True, nullable=False)
     join_date = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # adress relation 
+    adress = db.Column(db.Integer, ForeignKey("Livraison_adresses.id"))
+    
 
     def __init__(self, username, password, Nom, email, Prenom, Tel, adress):
         self.username = username
@@ -87,6 +90,9 @@ class Categories(db.Model):
     name = db.Column(db.String(200), nullable=False)
     img_url = db.Column(db.String(200), nullable=False)
     icon_url = db.Column(db.String(200), nullable=False)
+    cutting_off = db.Column(db.Float, nullable=False)
+    cutting_off_status = db.Column(db.Boolean, nullable=False, default=False)
+    
 
     def __repr__(self) -> str:
         return '<Categories %r>' % self.id
@@ -131,6 +137,7 @@ class Order(db.Model):
     order_date = db.Column(db.DateTime(timezone=True), default=datetime.now)
     DamandeType = db.Column(db.String(255), nullable=False)
     status = db.Column(db.Integer, default=1)
+    Note = db.Column(db.String(255), nullable=False)
 
     def __repr__(self) -> str:
         return '<Order %r>' % self.id
@@ -164,6 +171,8 @@ class Food(db.Model):
     rating = db.Column(db.Integer, nullable=True)
     recipes = db.Column(db.String(255), nullable=False)
     with_menu = db.Column(db.Boolean, default=False)
+    etat = db.Column(db.Boolean, default=False)
+    # with_options = db.Column(db.Boolean, default=False)
     # category id
     categoryID = db.Column(db.Integer, ForeignKey("categories.id"))
     category = db.relationship('Categories', backref='food_category')
@@ -187,6 +196,129 @@ class Recipe(db.Model):
 
     def __repr__(self) -> str:
         return '<Recip %r>' % self.id
+
+
+class CommandType(db.Model):
+    __tablename__ = 'command_type'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    isCheked = db.Column(db.Boolean, default=True)
+
+    def __repr__(self) -> str:
+        return '<Command %r>' % self.id
+
+
+class FraisDeLivraison(db.Model):
+    __tablename__ = 'livraison_frais'
+    id = db.Column(db.Integer, primary_key=True)
+    price = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self) -> str:
+        return '<Frais %r>' % self.id
+
+
+class LivraisonAdress(db.Model):
+    __tablename__ = 'Livraison_adresses'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    frais_price = db.Column(db.Float, nullable=False)
+    isActived = db.Column(db.Boolean, default=True)
+    
+
+    def __repr__(self) -> str:
+        return '<Adress %r>' % self.id
+
+
+class WorkHours(db.Model):
+    __tablename__ = 'work_hours'
+    id = db.Column(db.Integer, primary_key=True)
+    dayName = db.Column(db.String(200), nullable=False)
+    from_hour = db.Column(db.Time, nullable=False)
+    to_hour = db.Column(db.Time, nullable=False)
+
+    def __repr__(self) -> str:
+        return '<WorkHours %r>' % self.id
+
+
+class Contact(db.Model):
+    __tablename__ = 'contact'
+    id = db.Column(db.Integer, primary_key=True)
+    address = db.Column(db.String(200), nullable=False)
+    tel1 = db.Column(db.String(200), nullable=False)
+    tel2 = db.Column(db.String(200), nullable=False)
+    mail = db.Column(db.String(200), nullable=False)
+    facebook = db.Column(db.String(200), nullable=False)
+    instagram = db.Column(db.String(200), nullable=False)
+
+    def __repr__(self) -> str:
+        return '<Contact %r>' % self.id
+
+class notificationSound(db.Model):
+    __tablename__ = 'notification_sound'
+    id = db.Column(db.Integer, primary_key=True)
+    isActivated = db.Column(db.Boolean, nullable=False)
+
+    def __repr__(self) -> str:
+        return '<Notification_sound %r>' % self.id
+    
+    
+class clientStatus(db.Model):
+    __tablename__ = 'client_status'
+    id = db.Column(db.Integer, primary_key=True)
+    isActivated = db.Column(db.Boolean, nullable=False)
+
+    def __repr__(self) -> str:
+        return '<client_status %r>' % self.id
+
+# generate CommandTypeSchema for CommandType class
+
+class clientStatusSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = clientStatus
+        load_instance = True
+        include_fk = True
+        
+
+class notificationSoundSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = notificationSound
+        load_instance = True
+        include_fk = True
+        
+class ContactSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Contact
+        load_instance = True
+        include_fk = True
+
+
+class WorkHoursSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = WorkHours
+        load_instance = True
+        include_fk = True
+
+
+class LivraisonAdressSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = LivraisonAdress
+        load_instance = True
+        include_fk = True
+
+
+class FraisDeLivraisonSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = FraisDeLivraison
+        load_instance = True
+        include_fk = True
+
+
+class CommandTypeSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = CommandType
+        load_instance = True
+        include_fk = True
 
 
 class RatingSchema(ma.SQLAlchemyAutoSchema):
@@ -258,4 +390,3 @@ class CategoriesSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
         load_instance = True
         Nested(FoodSchema, many=True)
-

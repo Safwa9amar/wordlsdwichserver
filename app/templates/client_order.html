@@ -32,6 +32,12 @@
           >{{order_data.client.email}}
         </div>
       </div>
+      <br/>
+      {%if order_data.Note %}
+      <div class="badge badge-accent p-2">
+        <i class="fa-solid fa-comment-dots mx-2"></i>{{order_data.Note}}
+      </div>
+      {%endif%}
     </div>
     <div class="flex items-center gap-4 text-xl">
       {%if order_data.status ==1 %}
@@ -78,6 +84,7 @@
           <tr>
             <th>L'article</th>
             <th>Supplément</th>
+            <th>Autre</th>
             <th>Sans</th>
             <th>Quantité</th>
             <th>Prix</th>
@@ -115,6 +122,26 @@
             </td>
 
             <td>
+              {%if article.isMenu %}
+              <div class="flex items-center space-x-3">
+                <div class="avatar">
+                  <div class="mask mask-squircle w-12 h-12">
+                    <img
+                      src="{{article.Boisson.img_url}}"
+                      alt="Avatar Tailwind CSS Component"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div class="font-bold">{{article.Boisson.name}}</div>
+                </div>
+              </div>
+              {%else%}
+              <span>/</span>
+              {%endif%}
+            </td>
+
+            <td>
               <div class="flex flex-col">
                 {%if article.unSelectedRecipes|length == 0%} / {%endif%} {%for
                 recip in article.unSelectedRecipes%}
@@ -126,6 +153,7 @@
                 >Desktop Support Technician</span
               > -->
             </td>
+
             <td>{{article.amount}}x</td>
             <td>
               €{{article.food.prix}} {%if article.isMenu %}

@@ -1,0 +1,363 @@
+{%extends 'base.html'%} {%block body%}
+<div class="flex flex-col gap-10 pt-10 px-10 w-full">
+  <div class="grid grid-cols-[1fr_2fr]">
+    <p class="self-start text-xl">Notification par sound</p>
+    <div class="flex gap-4">
+      <form action="">
+        <div class="form-control">
+          {%if SoundNotification.isActivated%}
+          <input
+            id="SoundNotification"
+            type="checkbox"
+            class="toggle"
+            checked
+          />
+          {%else%}
+          <input id="SoundNotification" type="checkbox" class="toggle" />
+          {%endif%}
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="grid grid-cols-[1fr_2fr]">
+    <p class="self-start text-xl">Client status</p>
+    <div class="flex gap-4">
+      <form action="">
+        <div class="form-control">
+          {%if client_status.isActivated%}
+          <input
+            id="clientStatus"
+            type="checkbox"
+            class="toggle"
+            checked
+          />
+          {%else%}
+          <input id="SoundNotification" type="checkbox" class="toggle" />
+          {%endif%}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-[1fr_2fr]">
+    <p class="self-start text-xl">Statut de commandes</p>
+    <div class="flex gap-4">
+      <div class="flex gap-2 items-center">
+        <input id="surPlaceStatus" type="checkbox" class="checkbox" />
+        <label class="cursor-pointer" for="surPlaceStatus">Sur place</label>
+      </div>
+      <div class="flex gap-2 items-center">
+        <input id="EmporterStatus" type="checkbox" class="checkbox" />
+        <label class="cursor-pointer" for="EmporterStatus">à Emporter</label>
+      </div>
+      <div class="flex gap-2 items-center">
+        <input id="LivrerStatus" type="checkbox" class="checkbox" />
+        <label class="cursor-pointer" for="LivrerStatus">à Livrer</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-[1fr_2fr]">
+    <p class="self-start text-xl">
+      Livraison a partir
+      <button id="livraisonApartir" class="btn btn-sm btn-success">+</button>
+    </p>
+    <div class="flex gap-4">
+      <form class="flex flex-col gap-4" id="livraisonApartirForm">
+        <span class="flex flex-col gap-4" id="addingTarget">
+          {%for adress in DeleveryAdress%}
+          <div class="form-control relative">
+            <label class="input-group">
+              <input
+                type="text"
+                value="{{adress.name}}"
+                attr-id="{{adress.id}}"
+                class="input input-bordered"
+              />
+              <input
+                type="float"
+                value="{{adress.price}}"
+                attr-id="{{adress.id}}"
+                class="input input-bordered"
+              />
+              <input
+                type="float"
+                value="{{adress.frais_price}}"
+                attr-id="{{adress.id}}"
+                class="input input-bordered"
+              />
+              <span>€</span>
+              <div class="form-control">
+                <label class="label cursor-pointer">
+                  {%if adress.isActived%}
+                  <input
+                    attr-edit="LivraisonAdressStatus"
+                    type="checkbox"
+                    class="checkbox"
+                    checked
+                    attr-id="{{adress.id}}"
+                  />
+                  {%else%}
+                  <input
+                  attr-edit="LivraisonAdressStatus"
+                    type="checkbox"
+                    class="checkbox"
+                    attr-id="{{adress.id}}"
+                  />
+                  {%endif%}
+                </label>
+              </div>
+              <a
+                href="{{url_for('DelLivraisonAdr',id=adress.id)}}"
+                id="deleteAdress"
+                class="absolute left-[102%] -top-0"
+              >
+                <svg
+                  width="16"
+                  height="18"
+                  viewBox="0 0 16 18"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M5.4 13.5L8 10.9L10.6 13.5L12 12.1L9.4 9.5L12 6.9L10.6 5.5L8 8.1L5.4 5.5L4 6.9L6.6 9.5L4 12.1L5.4 13.5ZM3 18C2.45 18 1.97933 17.8043 1.588 17.413C1.196 17.021 1 16.55 1 16V3H0V1H5V0H11V1H16V3H15V16C15 16.55 14.8043 17.021 14.413 17.413C14.021 17.8043 13.55 18 13 18H3ZM13 3H3V16H13V3ZM3 3V16V3Z"
+                    fill="#F56565"
+                  />
+                </svg>
+              </a>
+            </label>
+          </div>
+
+          {%endfor%}
+        </span>
+        <!-- submit btn -->
+        <div id="submitDelivryLoader"></div>
+        <button class="btn btn-sm btn-secondary self-end">
+          <span class="flex items-center justify-center">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M17.5 5.83333V15.8333C17.5 16.2917 17.3369 16.6842 17.0108 17.0108C16.6842 17.3369 16.2917 17.5 15.8333 17.5H4.16667C3.70833 17.5 3.31583 17.3369 2.98917 17.0108C2.66306 16.6842 2.5 16.2917 2.5 15.8333V4.16667C2.5 3.70833 2.66306 3.31583 2.98917 2.98917C3.31583 2.66306 3.70833 2.5 4.16667 2.5H14.1667L17.5 5.83333ZM15.8333 6.54167L13.4583 4.16667H4.16667V15.8333H15.8333V6.54167ZM10 15C10.6944 15 11.2847 14.7569 11.7708 14.2708C12.2569 13.7847 12.5 13.1944 12.5 12.5C12.5 11.8056 12.2569 11.2153 11.7708 10.7292C11.2847 10.2431 10.6944 10 10 10C9.30556 10 8.71528 10.2431 8.22917 10.7292C7.74306 11.2153 7.5 11.8056 7.5 12.5C7.5 13.1944 7.74306 13.7847 8.22917 14.2708C8.71528 14.7569 9.30556 15 10 15ZM5 8.33333H12.5V5H5V8.33333ZM4.16667 6.54167V15.8333V4.16667V6.54167Z"
+                fill="black"
+              />
+            </svg>
+          </span>
+        </button>
+      </form>
+    </div>
+  </div>
+  <div class="grid grid-cols-[1fr_2fr]">
+    <!-- <div class="w-full flex gap-4 mt-10"> -->
+
+    <p class="self-start text-xl">
+      Définir les horaires de travail
+      <button id="workHours" class="btn btn-sm btn-success">+</button>
+    </p>
+    <div class="flex flex-col text-xl">
+      <!-- addingTarget -->
+
+      <form class="flex flex-col gap-4" id="workHoursForm">
+        {%for WorkHour in WorkHours%}
+        <div class="form-control relative w-fit">
+          <label class="input-group">
+            <input
+              type="text"
+              value="{{WorkHour.dayName}}"
+              attr-id="{{WorkHour.id}}"
+              class="input input-bordered"
+            />
+            <input
+              type="time"
+              value="{{WorkHour.from_hour}}"
+              attr-id="{{WorkHour.id}}"
+              class="input input-bordered"
+            />
+            <input
+              type="time"
+              value="{{WorkHour.to_hour}}"
+              attr-id="{{WorkHour.id}}"
+              class="input input-bordered"
+            />
+            <a
+              href="{{url_for('DelWorkHours',id=WorkHour.id)}}"
+              id="deleteWorkHour"
+              class="absolute left-[102%] -top-0"
+            >
+              <svg
+                width="16"
+                height="18"
+                viewBox="0 0 16 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M5.4 13.5L8 10.9L10.6 13.5L12 12.1L9.4 9.5L12 6.9L10.6 5.5L8 8.1L5.4 5.5L4 6.9L6.6 9.5L4 12.1L5.4 13.5ZM3 18C2.45 18 1.97933 17.8043 1.588 17.413C1.196 17.021 1 16.55 1 16V3H0V1H5V0H11V1H16V3H15V16C15 16.55 14.8043 17.021 14.413 17.413C14.021 17.8043 13.55 18 13 18H3ZM13 3H3V16H13V3ZM3 3V16V3Z"
+                  fill="#F56565"
+                />
+              </svg>
+            </a>
+          </label>
+        </div>
+        {%endfor%}
+
+        <span id="addingTargetWorkHours"> </span>
+        <button class="btn btn-sm btn-secondary self-end">
+          <span class="flex items-center justify-center">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M17.5 5.83333V15.8333C17.5 16.2917 17.3369 16.6842 17.0108 17.0108C16.6842 17.3369 16.2917 17.5 15.8333 17.5H4.16667C3.70833 17.5 3.31583 17.3369 2.98917 17.0108C2.66306 16.6842 2.5 16.2917 2.5 15.8333V4.16667C2.5 3.70833 2.66306 3.31583 2.98917 2.98917C3.31583 2.66306 3.70833 2.5 4.16667 2.5H14.1667L17.5 5.83333ZM15.8333 6.54167L13.4583 4.16667H4.16667V15.8333H15.8333V6.54167ZM10 15C10.6944 15 11.2847 14.7569 11.7708 14.2708C12.2569 13.7847 12.5 13.1944 12.5 12.5C12.5 11.8056 12.2569 11.2153 11.7708 10.7292C11.2847 10.2431 10.6944 10 10 10C9.30556 10 8.71528 10.2431 8.22917 10.7292C7.74306 11.2153 7.5 11.8056 7.5 12.5C7.5 13.1944 7.74306 13.7847 8.22917 14.2708C8.71528 14.7569 9.30556 15 10 15ZM5 8.33333H12.5V5H5V8.33333ZM4.16667 6.54167V15.8333V4.16667V6.54167Z"
+                fill="black"
+              />
+            </svg>
+          </span>
+        </button>
+      </form>
+    </div>
+  </div>
+  <form
+    class="flex flex-col gap-4"
+    action="{{url_for('PostContact')}}"
+    method="post"
+  >
+    <!-- contact info  -->
+    <div class="grid grid-cols-[1fr_2fr]">
+      <!-- <div class="w-full flex flex-col gap-4 mt-10"> -->
+      <p class="self-start text-xl">Informations de contact</p>
+      <div class="flex flex-col gap-4">
+        <div class="form-control">
+          <label class="input-group input-group-vertical">
+            <span>Adresse</span>
+            <input
+              name="adresse"
+              type="text"
+              value="{{contactInfo.address}}"
+              placeholder="info@site.com"
+              class="input input-bordered"
+            />
+          </label>
+        </div>
+        <div class="form-control">
+          <label class="input-group input-group-vertical">
+            <span>Téléphone 1</span>
+            <input
+              name="tel1"
+              value="{{contactInfo.tel1}}"
+              type="text"
+              placeholder="info@site.com"
+              class="input input-bordered"
+            />
+          </label>
+        </div>
+        <div class="form-control">
+          <label class="input-group input-group-vertical">
+            <span>Téléphone 2</span>
+            <input
+              name="tel2"
+              value="{{contactInfo.tel2}}"
+              type="text"
+              placeholder="info@site.com"
+              class="input input-bordered"
+            />
+          </label>
+        </div>
+        <div class="form-control">
+          <label class="input-group input-group-vertical">
+            <span>Adresse email</span>
+            <input
+              name="mail"
+              value="{{contactInfo.mail}}"
+              type="text"
+              placeholder="info@site.com"
+              class="input input-bordered"
+            />
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Réseaux sociaux -->
+    <div class="grid grid-cols-[1fr_2fr]">
+      <!-- <div class="w-full flex flex-col gap-4 mt-10"> -->
+      <p class="self-start text-xl">Réseaux sociaux</p>
+      <div class="flex flex-col gap-4">
+        <div class="form-control">
+          <label class="input-group">
+            <span>https://www.facebook.com/</span>
+            <input
+              name="facebook"
+              value="{{contactInfo.facebook}}"
+              type="text"
+              placeholder="info@site.com"
+              class="input input-bordered"
+            />
+            <a
+              class="btn btn-success"
+              href="https://www.facebook.com/{{contactInfo.facebook}}"
+              target="_blank"
+            >
+              Visit
+            </a>
+          </label>
+        </div>
+        <div class="form-control">
+          <label class="input-group">
+            <span>https://www.instagram.com/</span>
+            <input
+              name="instagram"
+              value="{{contactInfo.instagram}}"
+              type="text"
+              placeholder="info@site.com"
+              class="input input-bordered"
+            />
+            <a
+              class="btn btn-success"
+              href="https://www.instagram.com/{{contactInfo.instagram}}"
+              target="_blank"
+            >
+              Visit
+            </a>
+          </label>
+          <!-- link for this -->
+        </div>
+
+        <button class="btn btn-sm btn-secondary self-end">
+          <span class="flex items-center justify-center">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M17.5 5.83333V15.8333C17.5 16.2917 17.3369 16.6842 17.0108 17.0108C16.6842 17.3369 16.2917 17.5 15.8333 17.5H4.16667C3.70833 17.5 3.31583 17.3369 2.98917 17.0108C2.66306 16.6842 2.5 16.2917 2.5 15.8333V4.16667C2.5 3.70833 2.66306 3.31583 2.98917 2.98917C3.31583 2.66306 3.70833 2.5 4.16667 2.5H14.1667L17.5 5.83333ZM15.8333 6.54167L13.4583 4.16667H4.16667V15.8333H15.8333V6.54167ZM10 15C10.6944 15 11.2847 14.7569 11.7708 14.2708C12.2569 13.7847 12.5 13.1944 12.5 12.5C12.5 11.8056 12.2569 11.2153 11.7708 10.7292C11.2847 10.2431 10.6944 10 10 10C9.30556 10 8.71528 10.2431 8.22917 10.7292C7.74306 11.2153 7.5 11.8056 7.5 12.5C7.5 13.1944 7.74306 13.7847 8.22917 14.2708C8.71528 14.7569 9.30556 15 10 15ZM5 8.33333H12.5V5H5V8.33333ZM4.16667 6.54167V15.8333V4.16667V6.54167Z"
+                fill="black"
+              />
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+  </form>
+
+  
+  <br />
+  <br />
+</div>
+<script src="{{url_for('static', filename='js/settings/vars.js')}}"></script>
+<script src="{{url_for('static', filename='js/settings/LivraisonAPartir.js')}}"></script>
+<script src="{{url_for('static', filename='js/settings/horairesTravail.js')}}"></script>
+<script src="{{url_for('static', filename='js/settings/notifSound.js')}}"></script>
+<script src="{{url_for('static', filename='js/settings/client_status.js')}}"></script>
+{%endblock%}

@@ -103,6 +103,39 @@
         </label>
       </div>
     </div>
+
+    <div class="flex gap-2">
+      <label class="label justify-start gap-3 cursor-pointer">
+        <input
+          value="{{el.cutting_off}}"
+          type="text"
+          placeholder="Type here"
+          class="input input-bordered w-full max-w-xs"
+          name="cutting_off"
+        />
+        <span class="label-text">%</span>
+      </label>
+      <label class="label justify-start gap-3 cursor-pointer"
+        >{%if el.cutting_off_status%}
+        <input
+          type="checkbox"
+          id="activeOffer"
+          checked="checked"
+          class="checkbox"
+          name="cutting_off_status"
+        />
+        {%else%}
+        <input
+          type="checkbox"
+          id="activeOffer"
+          class="checkbox"
+          name="cutting_off_status"
+        />
+        {%endif%}
+        <span class="label-text">Activer l'offre </span>
+      </label>
+    
+    </div>
     <div class="divider"></div>
     <button class="btn btn-success self-end">Mettre à jour</button>
   </fieldset>

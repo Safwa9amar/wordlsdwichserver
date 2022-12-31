@@ -11,6 +11,7 @@
         <th>Location</th>
         <!-- <th>total dépensé</th> -->
         <th>dernière commande</th>
+        <th>options</th>
       </tr>
     </thead>
     <tbody>
@@ -44,7 +45,7 @@
         <td>{{el.Nom}} {{el.Prenom}}</td>
         <td>{{el.adress}}</td>
         <!-- <td>Purple</td> -->
-        <th>
+        <td>
           {%if Order.query.order_by(Order.id.desc()).filter_by(customer_id
           =el.id).first().id %}
 
@@ -58,7 +59,19 @@
             <i class="fa-solid fa-arrow-up-right-from-square mx-2"></i>
           </a>
           {%endif%}
-        </th>
+        </td>
+        <td>
+          <a
+          href="{{url_for('deleteClient', id=el.id)}}"
+            class="btn btn-ghost btn-xs text-error"
+            >
+            <i class="fas fa-trash"></i>
+
+          
+          </a>
+        
+        </td>
+
       </tr>
       {%endfor%}
     </tbody>

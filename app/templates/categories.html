@@ -21,6 +21,7 @@
         <tr>
           <th>category</th>
           <th>icon</th>
+          <th>Promotion</th>
           <th>Options</th>
         </tr>
       </thead>
@@ -48,7 +49,16 @@
               />
             </div>
           </td>
-          <th>
+          
+          <td class="flex items-center gap-2">
+            {{el.cutting_off}}% {%if el.cutting_off_status%}
+            <div class="badge badge-success">active</div>
+            {%else%}
+            <div class="badge badge-error">inactive</div>
+            {%endif%}
+          </td>
+
+          <td>
             <a
               href="{{url_for('Update', id=el.id)}}"
               class="btn btn-xs btn-outline btn-success"
@@ -64,7 +74,7 @@
             >
               <i class="fa-solid fa-trash mx-2"></i>Retirer
             </a>
-          </th>
+          </td>
         </tr>
         {%endfor%}
       </tbody>
