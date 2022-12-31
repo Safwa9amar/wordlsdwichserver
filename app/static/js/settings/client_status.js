@@ -40,8 +40,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // clientStatus element get by id and add event listener 
   const clientStatus = document.getElementById("clientStatus");
   clientStatus.addEventListener("change", function (e) {
-    let url = `${window.location.origin}/dashboard/settings/api/client_status`;
-    // let url = `${window.location.origin}/settings/api/client_status`;
+    // let url = `${window.location.origin}/dashboard/settings/api/client_status`;
+    let url = `${window.location.origin}/settings/api/client_status`;
     let formData = {
       status: this.checked,
     };

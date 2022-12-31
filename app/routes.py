@@ -429,10 +429,9 @@ def orders():
         full_order_data = []
         recip_arr = []
         montants = []
-        # print(detaills)
-
+        adress = LivraisonAdress.query.filter_by(id=costumer.adress).first()
         for detaill in detaills:
-
+            print(detaill['category_id'])
             try:
                 Boisson = detaill['SelectedBoisson'] if detaill['isMenu'] else None
             except:
@@ -473,7 +472,6 @@ def orders():
             }
 
             full_order_data.append(obj)
-
         total = 0
         for montant in montants:
             total += float(montant)
@@ -483,11 +481,11 @@ def orders():
                 "DamandeType": ast.literal_eval(order.DamandeType),
                 "date": order.order_date.astimezone(tzlocal()),
                 "client": costumer,
-                "adress": costumer.adress,
+                "adress": adress,
                 "montants": total,
                 "status": order.status,
                 "full_order_data": full_order_data,
-                "Note": order.Note
+                "Note": order.Note,
             }
 
             final_data.append(order_data)
@@ -1187,27 +1185,26 @@ def livraison_adresses_status():
 
 
 
-@app.route('/client_status')
+@app.route('/settings/api/client_status', methods=["POST", "GET"])
 def client_status():
     data = clientStatus.query.first()
     if request.method == "GET":
         return jsonify(clientStatusSchema().dump(data))
     if request.method == "POST":
         formData = request.get_json()
-        for el in formData:
-            id = el.get('id')
-            status = el.get('status')
-            q = clientStatus.query.filter_by(id=id).first()
-            if q:
-                if q.isActivated != status:
-                    q.isActivated = status
-                    db.session.commit()
-            else:
-                newData = clientStatus(
-                    isActivated=status,
-                )
-                db.session.add(newData)
+        print(formData["status"])
+        status = formData["status"]
+        if data:
+            if data.isActivated != status:
+                data.isActivated = status
                 db.session.commit()
+        else:
+            newData = clientStatus(
+                isActivated=status,
+            )
+            db.session.add(newData)
+            db.session.commit()
+        return {"res" : "ok"}
 
 
 @ app.errorhandler(404)
