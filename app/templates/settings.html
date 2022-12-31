@@ -38,7 +38,7 @@
     <div class="flex gap-4 ">
       <form class="flex flex-col items-center" action="">
         <div class="form-control">
-          <input class="cursor-pointer w-[200px]" id="globalPromotion" type="range" min="0" max="100" value={{Global_Promotion.value}} />
+          <input class="range range-primary md:w-[300px]"  id="globalPromotion" type="range" min="0" max="100" value={{Global_Promotion.value}} />
         </div>
         {%if Global_Promotion.value > 0 %}
         <span class="self-end text-green-500" id="globalPromotionTarget">

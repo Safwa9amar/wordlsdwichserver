@@ -430,8 +430,9 @@ def orders():
         recip_arr = []
         montants = []
         adress = LivraisonAdress.query.filter_by(id=costumer.adress).first()
+        print(detaills)
         for detaill in detaills:
-            print(detaill['category_id'])
+            # print(Categories.query.filter_by(id=detaill['category_id']).first())
             try:
                 Boisson = detaill['SelectedBoisson'] if detaill['isMenu'] else None
             except:

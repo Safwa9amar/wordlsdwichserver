@@ -9727,6 +9727,10 @@ body[dir="rtl"] .checkbox:checked,
     width: 33.333333%;
   }
 
+  .md\:w-\[300px\] {
+    width: 300px;
+  }
+
   .md\:flex-row {
     flex-direction: row;
   }
