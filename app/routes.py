@@ -1021,8 +1021,10 @@ def settings():
     contactInfo = Contact.query.first()
     SoundNotification = notificationSound.query.first()
     client_status = clientStatus.query.first()
+    Global_Promotion = GlobalPromotion.query.first()
     
-    return render_template('settings.html',  DeleveryAdress=LivraisonAdrrs, WorkHours=Work__Hours, contactInfo=contactInfo, SoundNotification=SoundNotification, client_status=client_status)
+    
+    return render_template('settings.html',  DeleveryAdress=LivraisonAdrrs, WorkHours=Work__Hours, contactInfo=contactInfo, SoundNotification=SoundNotification, client_status=client_status, Global_Promotion = Global_Promotion)
 
 
 @app.route('/settings/api/faris', methods=["GET", "POST"])
@@ -1201,6 +1203,29 @@ def client_status():
         else:
             newData = clientStatus(
                 isActivated=status,
+            )
+            db.session.add(newData)
+            db.session.commit()
+        return {"res" : "ok"}
+    
+    
+    
+@app.route('/settings/api/globalPromotion', methods=["POST", "GET"])
+def global_promotion():
+    data = GlobalPromotion.query.first()
+    if request.method == "GET":
+        return jsonify(GlobalPromotionSchema().dump(data))
+    if request.method == "POST":
+        formData = request.get_json()
+        print(formData["globalPromotion"])
+        globalPromotion = formData["globalPromotion"]
+        if data:
+            if data.value != globalPromotion:
+                data.value = globalPromotion
+                db.session.commit()
+        else:
+            newData = GlobalPromotion(
+                value= globalPromotion,
             )
             db.session.add(newData)
             db.session.commit()

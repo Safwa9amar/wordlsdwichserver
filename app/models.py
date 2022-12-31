@@ -270,8 +270,22 @@ class clientStatus(db.Model):
 
     def __repr__(self) -> str:
         return '<client_status %r>' % self.id
+    
+    
+class GlobalPromotion(db.Model):
+    __tablename__ = 'global_promotion'
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.Integer, nullable=False)
+    def __repr__(self) -> str:
+        return '<global_promotion %r>' % self.id
 
 # generate CommandTypeSchema for CommandType class
+
+class GlobalPromotionSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = GlobalPromotion
+        load_instance = True
+        include_fk = True
 
 class clientStatusSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

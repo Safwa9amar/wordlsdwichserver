@@ -25,16 +25,31 @@
       <form action="">
         <div class="form-control">
           {%if client_status.isActivated%}
-          <input
-            id="clientStatus"
-            type="checkbox"
-            class="toggle"
-            checked
-          />
+          <input id="clientStatus" type="checkbox" class="toggle" checked />
           {%else%}
           <input id="clientStatus" type="checkbox" class="toggle" />
           {%endif%}
         </div>
+      </form>
+    </div>
+  </div>
+  <div class="grid grid-cols-[1fr_2fr]">
+    <p class="self-start text-xl">Promotion sur total de commande </p>
+    <div class="flex gap-4 ">
+      <form class="flex flex-col items-center" action="">
+        <div class="form-control">
+          <input class="cursor-pointer w-[200px]" id="globalPromotion" type="range" min="0" max="100" value={{Global_Promotion.value}} />
+        </div>
+        {%if Global_Promotion.value > 0 %}
+        <span class="self-end text-green-500" id="globalPromotionTarget">
+          {{Global_Promotion.value}}%
+
+        </span>
+        {%else%}
+        <span class="self-end text-red-500" id="globalPromotionTarget">
+          {{Global_Promotion.value}}%
+        </span>
+        {%endif%}
       </form>
     </div>
   </div>
@@ -99,7 +114,7 @@
                   />
                   {%else%}
                   <input
-                  attr-edit="LivraisonAdressStatus"
+                    attr-edit="LivraisonAdressStatus"
                     type="checkbox"
                     class="checkbox"
                     attr-id="{{adress.id}}"
@@ -351,7 +366,6 @@
     </div>
   </form>
 
-  
   <br />
   <br />
 </div>
@@ -360,4 +374,5 @@
 <script src="{{url_for('static', filename='js/settings/horairesTravail.js')}}"></script>
 <script src="{{url_for('static', filename='js/settings/notifSound.js')}}"></script>
 <script src="{{url_for('static', filename='js/settings/client_status.js')}}"></script>
+<script src="{{url_for('static', filename='js/settings/globalPromotion.js')}}"></script>
 {%endblock%}
