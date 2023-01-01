@@ -54,7 +54,13 @@ def get_client_order():
         order = data['order']
         Note = data['Note']
         # print(order)
-
+        
+        globalPromo = Promotion.query.get_or_404(1)
+        promotion = []
+        [promotion.append(el['category']) for el in order if el['category'] not in promotion]
+        
+      
+        print(promotion)
         DamandeType = data['DamandeType']
         if client:
             order_data = []
@@ -78,6 +84,12 @@ def get_client_order():
                         "SelectedBoisson": SelectedBoisson
                     }
                 )
+                promo = Promotion(
+                promotionGlobal = globalPromo.value,
+                categoryID = category_id,
+                
+                )
+            
             order = Order(
                 customer_id=client.id,
                 order=str(order_data),
@@ -92,9 +104,17 @@ def get_client_order():
                 customer_id=client.id,
                 order_id=order.id,
             )
+           
             db.session.add(notif)
             db.session.commit()
-
+            
+              promotionData = {
+"promotionGlobal" 
+"categoryID", 
+"cutting_off", 
+"cutting_off_status", 
+"orderID", 
+        }
             return {"client_id": client.id, "order": order_data, "isConfirmed": True, 'OrderNum': order.id}
         else:
             # print({"client_id": client.id, "order": order_data})

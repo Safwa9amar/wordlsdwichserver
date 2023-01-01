@@ -278,8 +278,33 @@ class GlobalPromotion(db.Model):
     value = db.Column(db.Integer, nullable=False)
     def __repr__(self) -> str:
         return '<global_promotion %r>' % self.id
+    
+    
+class Promotion(db.Model):
+    __tablename__ = 'promotion'
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    promotionGlobal = db.Column(db.Float, nullable=False, default=0)
+    
+    # relation for category
+    categoryID = db.Column(db.Integer, ForeignKey("categories.id"))
+    cutting_off = db.Column(db.Float, nullable=False)
+    cutting_off_status = db.Column(db.Boolean, nullable=False, default=False)
+     # relation for order
+    orderID = db.Column(db.Integer, ForeignKey("order.id"))
+
+    def __repr__(self) -> str:
+        return '<Promotion %r>' % self.id
 
 # generate CommandTypeSchema for CommandType class
+
+class PromotionSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Promotion
+        load_instance = True
+        include_fk = True
+        include_relationships = True
+
 
 class GlobalPromotionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
