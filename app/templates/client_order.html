@@ -12,13 +12,26 @@
         >
       </h1>
       <h1 class="text-xl">
-        Le total:
+        Le subtotal :
         <span class="text-bold">€{{order_data.montants}}</span>
       </h1>
+      {%if order_data.DamandeType.id == 3%}
+      <h1 class="text-xl">
+        Coûts de livraison :
+        <span class="text-bold"> {{order_data.adress.frais_price}}€ </span>
+      </h1>
+      {%endif%}
+      <h1 class="text-xl">
+        le Total :
+        {{order_data.montants + order_data.adress.frais_price if order_data.DamandeType.id == 3 else order_data.montants }}€
+      </h1>
+        
+
 
       <p>Client : {{order_data.client.Nom}} {{order_data.client.Prenom}}</p>
       <!-- <p>{{order_data.client.adress}}</p> -->
-      <p>id : {{order_data.client.id}}</p>
+      <!-- <p>id : {{order_data.client.id}}</p> -->
+      <br>
       <div class="flex gap-2">
         <div class="badge p-2">
           <i class="fa-solid fa-phone mx-2"></i>{{order_data.client.Tel}}
@@ -32,7 +45,7 @@
           >{{order_data.client.email}}
         </div>
       </div>
-      <br/>
+      <br />
       {%if order_data.Note %}
       <div class="badge badge-accent p-2">
         <i class="fa-solid fa-comment-dots mx-2"></i>{{order_data.Note}}

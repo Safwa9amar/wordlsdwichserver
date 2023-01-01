@@ -430,49 +430,71 @@ def orders():
         recip_arr = []
         montants = []
         adress = LivraisonAdress.query.filter_by(id=costumer.adress).first()
-        print(detaills)
-        for detaill in detaills:
-            # print(Categories.query.filter_by(id=detaill['category_id']).first())
-            try:
-                Boisson = detaill['SelectedBoisson'] if detaill['isMenu'] else None
-            except:
-                Boisson = None
-            supp_arr = []
-            totalSupp = 0
-            if detaill['supplement'] != None:
-                try:
-                    for supp in detaill['supplement']:
-                        supp_item = ItemSupplement.query.filter_by(
-                            id=supp['item_id']).first()
-
-                        supp_arr.append(
-                            {'supp': supp_item, 'count': supp['count']})
-                        totalSupp = totalSupp + \
-                            (supp_item.Prix * int(supp['count']))
-                except:
-                    print('no supp')
-
-            montants.append(totalSupp * int(detaill['amount']))
-
-            montants.append(float(Food.query.filter_by(
-                id=detaill['food_id']).first().prix) * int(detaill['amount']))
-            if detaill['isMenu']:
-                montants.append(2 * int(detaill['amount']))
-
-            for recip in detaill['unSelectedRecipes']:
-                recip_arr.append(Recipe.query.filter_by(id=recip).first())
-
-            obj = {
-                "food": Food.query.filter_by(id=detaill['food_id']).first(),
-                "isMenu": detaill['isMenu'],
-                "amount": detaill['amount'],
-                "Boisson": Boisson,
-                "unSelectedRecipes": recip_arr,
-                "supplement": supp_arr,
-                "totalSupp": totalSupp
+        # print(detaills)
+        FinalDetaills = []
+        newDetaills = []
+        data = [newDetaills.append(el['category_id']) for el in detaills if el['category_id'] not in newDetaills]
+        for detaill in newDetaills:
+            cat =  Categories.query.filter_by(id=detaill).first()
+            newObj = {
+                "categoryID" :cat.id,
+                "categoryCutting_off" :cat.cutting_off,
+                "categoryCutting_off_status" :cat.cutting_off_status,
+                "dataList" : [el for el in detaills if el['category_id'] == cat.id]
             }
+            FinalDetaills.append(newObj)
 
-            full_order_data.append(obj)
+        for FinalDetaill in FinalDetaills:
+            montantsForThis = []
+            for el in FinalDetaill['dataList']:
+                # print(Categories.query.filter_by(id=detaill['category_id']).first())
+                try:
+                    Boisson = detaill['SelectedBoisson'] if el['isMenu'] else None
+                except:
+                    Boisson = None
+                supp_arr = []
+                totalSupp = 0
+                if el['supplement'] != None:
+                    try:
+                        for supp in el['supplement']:
+                            supp_item = ItemSupplement.query.filter_by(
+                                id=supp['item_id']).first()
+
+                            supp_arr.append(
+                                {'supp': supp_item, 'count': supp['count']})
+                            totalSupp = totalSupp + \
+                                (supp_item.Prix * int(supp['count']))
+                    except:
+                        print('no supp')
+
+                montantsForThis.append(totalSupp * int(el['amount']))
+
+                montantsForThis.append(float(Food.query.filter_by(
+                    id=el['food_id']).first().prix) * int(el['amount']))
+                if el['isMenu']:
+                    montantsForThis.append(2 * int(el['amount']))
+
+                for recip in el['unSelectedRecipes']:
+                    recip_arr.append(Recipe.query.filter_by(id=recip).first())
+
+                obj = {
+                    "food": Food.query.filter_by(id=el['food_id']).first(),
+                    "isMenu": el['isMenu'],
+                    "amount": el['amount'],
+                    "Boisson": Boisson,
+                    "unSelectedRecipes": recip_arr,
+                    "supplement": supp_arr,
+                    "totalSupp": totalSupp
+                }
+
+                full_order_data.append(obj)
+            totalForThis = 0
+            for el in montantsForThis:
+                totalForThis += float(el)
+            totalForThis = totalForThis - (totalForThis * FinalDetaill['categoryCutting_off'])/100 if FinalDetaill['categoryCutting_off_status'] else totalForThis
+            print(totalForThis)
+            montants.append(totalForThis)
+
         total = 0
         for montant in montants:
             total += float(montant)
@@ -505,7 +527,7 @@ def orders():
     except TypeError:
         # dateconv=utc_to_local_datetime
         return render_template('orders.html', client_orders=final_data)
-
+    # print(FinalDetaills)
     # dateconv=utc_to_local_datetime
     return render_template('orders.html', client_orders=final_data)
 
