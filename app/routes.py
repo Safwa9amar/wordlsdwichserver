@@ -54,13 +54,9 @@ def get_client_order():
         order = data['order']
         Note = data['Note']
         # print(order)
-        
-        globalPromo = Promotion.query.get_or_404(1)
         promotion = []
         [promotion.append(el['category']) for el in order if el['category'] not in promotion]
-        
       
-        print(promotion)
         DamandeType = data['DamandeType']
         if client:
             order_data = []
@@ -84,12 +80,7 @@ def get_client_order():
                         "SelectedBoisson": SelectedBoisson
                     }
                 )
-                promo = Promotion(
-                promotionGlobal = globalPromo.value,
-                categoryID = category_id,
-                
-                )
-            
+                          
             order = Order(
                 customer_id=client.id,
                 order=str(order_data),
@@ -98,7 +89,19 @@ def get_client_order():
             )
             db.session.flush()
             db.session.add(order)
-            db.session.commit()
+            globalPromo = GlobalPromotion.query.get_or_404(1)
+           
+            for el in promotion:
+                cat = Categories.query.filter_by(id=el).first()
+                promo = Promotion(
+                    promotionGlobal = globalPromo.value,
+                    categoryID = el,
+                    cutting_off = cat.cutting_off,
+                    cutting_off_status = cat.cutting_off_status,
+                    orderID = order.id,
+                )
+                db.session.add(promo)
+
             # print(order.id)
             notif = Notification(
                 customer_id=client.id,
@@ -108,13 +111,7 @@ def get_client_order():
             db.session.add(notif)
             db.session.commit()
             
-              promotionData = {
-"promotionGlobal" 
-"categoryID", 
-"cutting_off", 
-"cutting_off_status", 
-"orderID", 
-        }
+        
             return {"client_id": client.id, "order": order_data, "isConfirmed": True, 'OrderNum': order.id}
         else:
             # print({"client_id": client.id, "order": order_data})
@@ -455,19 +452,21 @@ def orders():
         newDetaills = []
         data = [newDetaills.append(el['category_id']) for el in detaills if el['category_id'] not in newDetaills]
         for detaill in newDetaills:
-            cat =  Categories.query.filter_by(id=detaill).first()
+            cat =  Promotion.query.filter_by(orderID=order.id).filter_by(categoryID=detaill).first()
+            print(cat)
             newObj = {
-                "categoryID" :cat.id,
+                "orderID": order.id, 
+                "categoryID" :detaill,
                 "categoryCutting_off" :cat.cutting_off,
                 "categoryCutting_off_status" :cat.cutting_off_status,
-                "dataList" : [el for el in detaills if el['category_id'] == cat.id]
+                "promotionGlobal" : cat.promotionGlobal,
+                "dataList" : [el for el in detaills if el['category_id'] == detaill]
             }
             FinalDetaills.append(newObj)
 
         for FinalDetaill in FinalDetaills:
             montantsForThis = []
             for el in FinalDetaill['dataList']:
-                # print(Categories.query.filter_by(id=detaill['category_id']).first())
                 try:
                     Boisson = detaill['SelectedBoisson'] if el['isMenu'] else None
                 except:
@@ -512,8 +511,8 @@ def orders():
             for el in montantsForThis:
                 totalForThis += float(el)
             totalForThis = totalForThis - (totalForThis * FinalDetaill['categoryCutting_off'])/100 if FinalDetaill['categoryCutting_off_status'] else totalForThis
-            print(totalForThis)
-            montants.append(totalForThis)
+            # print(totalForThis)
+            montants.append(totalForThis - (totalForThis * FinalDetaill['promotionGlobal'])/100 )
 
         total = 0
         for montant in montants:
@@ -532,7 +531,7 @@ def orders():
             }
 
             final_data.append(order_data)
-    # print(final_data)
+    # print(FinalDetaills)
 
     try:
         if selected_order != None:
@@ -557,6 +556,8 @@ def orders():
 def deleteOrder(id):
     order = Order.query.filter_by(id=id).first()
     Notification.query.filter_by(customer_id=order.customer_id).delete()
+    Promotion.query.filter_by(orderID=order.id).delete()
+    
     db.session.delete(order)
     db.session.commit()
     return redirect(url_for('orders'))
