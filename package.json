@@ -4,5 +4,8 @@
   },
   "dependencies": {
     "daisyui": "^2.31.0"
+  },
+  "scripts": {
+    "watch:css": "npx tailwindcss -i ./app/static/css/input.css -o ./app/static/css/main.css --watch"
   }
 }
