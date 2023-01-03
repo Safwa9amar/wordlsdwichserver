@@ -18,9 +18,12 @@ document.addEventListener("DOMContentLoaded", function () {
     globalPromotionTarget.innerHTML = html;
 
     // push data to the server using fetchAsyncPost function
-    // fetchAsyncPost("dashboard/settings/api/globalPromotion", {
-    fetchAsyncPost("/settings/api/globalPromotion", {
-      globalPromotion: value,
-    });
+    fetchAsyncPost(
+      `${window.location.origin}/dashboard/settings/api/globalPromotion`,
+      {
+        // fetchAsyncPost("/settings/api/globalPromotion", {
+        globalPromotion: value,
+      }
+    );
   });
 });

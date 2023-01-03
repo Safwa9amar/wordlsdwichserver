@@ -14,7 +14,7 @@ from flask import render_template, url_for, request, redirect, jsonify, make_res
 from flask_cors import CORS, cross_origin
 from sqlalchemy import desc
 
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user 
 
 
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
@@ -90,7 +90,7 @@ def get_client_order():
             db.session.flush()
             db.session.add(order)
             globalPromo = GlobalPromotion.query.get_or_404(1)
-           
+            print(promotion)
             for el in promotion:
                 cat = Categories.query.filter_by(id=el).first()
                 promo = Promotion(
@@ -241,6 +241,12 @@ def login():
 
     return render_template('login.html')
 
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    print(current_user)
+    return render_template('profile.html', user=current_user)
+
 
 @app.route('/')
 @login_required
@@ -313,24 +319,7 @@ def rating():
             return jsonify({'info': 'you are not registred'}), 401
 
     return ""
-    # print(RatingSchema().dump(getUserRating))
-    #     return RatingSchema().dump(getUserRating)
-    # else:
-    #     # rat = Rating(
-    #     #     count=5,
-    #     #     UserId=req['userId']
-    #     # )
-    #     # db.session.add(rat)
-    #     # db.session.commit()
-    #     return jsonify({'failed': id})
-
-    # rating = Rating.query.all()
-
-    # rating = RatingSchema(many=True).dump(rating)
-
-    # RatingSchema
-    # print(getUserRating)
-    # return 'rating'
+ 
 
 
 @app.route('/confirmer_deliver', methods=['POST'])
@@ -524,7 +513,7 @@ def orders():
                 "date": order.order_date.astimezone(tzlocal()),
                 "client": costumer,
                 "adress": adress,
-                "montants": total,
+                "montants": round(total, 2),
                 "status": order.status,
                 "full_order_data": full_order_data,
                 "Note": order.Note,
@@ -1275,6 +1264,45 @@ def global_promotion():
             db.session.commit()
         return {"res" : "ok"}
 
+
+@app.route('/table-reservation', methods=["GET", "POST"])
+@ login_required
+def reserve_table():
+    
+    data = TableReservation.query.all()
+    return render_template('table_reservation.html', table_data=data)
+
+
+@app.route('/bookings', methods=["POST", "GET"])
+def reserve_table_from_client():
+    # save the table reservation in the database 
+    if request.method == "POST":
+        formData = request.get_json()
+        print(formData)
+        name = formData["name"]
+        email = formData["email"]
+        phone = formData["phone"]
+        date = formData["date"]
+        people = formData["people"]
+        newData = TableReservation(
+            nom=name,
+            email=email,
+            phone=phone,
+            date=date,
+            person_count=people,
+        )
+        db.session.add(newData)
+        db.session.commit()
+        return {"res": "ok"}
+    return {"res": "ok"}
+
+
+@app.route('/deleteTable/<int:id>', methods=["GET", "POST"])
+def deleteTable(id):
+    # delete the table using the id
+    TableReservation.query.filter_by(id=id).delete()
+    db.session.commit()
+    return redirect(url_for('reserve_table'))
 
 @ app.errorhandler(404)
 @ login_required

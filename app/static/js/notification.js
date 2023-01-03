@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let notif_indicator = document.getElementById("notif_indicator");
 
   // const socket = io(`http://${document.domain}:${location.port}/test`);
-  const url = `${location.origin}/dashboard`;
-  // const url = `${location.origin}`;
+  // const url = `${location.origin}/dashboard`;
+  const url = `${location.origin}`;
 
   let audio = new Audio(`${url}/static/sounds/notifications-sound.mp3`);
   // async function fetshNotification
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         newData.forEach((el) => {
           let html = `
-            <a href="${url}/orders?order=${el.order_id}" class="w-full flex flex-col gap-2   " data-attr="${el.id}" >
+            <a href="${url}/orders?order=${el.order_id}" class="w-full flex flex-col gap-2 hover:bg-neutral-focus  " data-attr="${el.id}" >
                 <h1>${el.custumer_nom} ${el.custumer_prenom} a passé une commande</h1>
                 <p>${el.order_date}</p>
             </a>

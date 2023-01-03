@@ -1,0 +1,56 @@
+{%extends 'base.html'%} {%block body%}
+
+<div class="overflow-x-auto w-full pt-10 px-4">
+  <table class="table w-full" id="orders-table">
+    <!-- head -->
+    <thead>
+      <tr>
+        <th>Reservation ID</th>
+        <th>Nom</th>
+        <th>Numéro de téléphone</th>
+        <th>Email</th>
+        <th>N° des Persone</th>
+        <th>Date de reservation</th>
+        <th>options</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- row 1 -->
+      {%for el in table_data%}
+
+      <tr>
+        <td>{{el.id}}</td>
+        <td>{{el.nom}}</td>
+        <td>{{el.phone}}</td>
+        <td>{{el.email}}</td>
+        <td>{{el.person_count}}</td>
+        <td>{{el.date.strftime("%d/%m/%Y")}}</td>
+        <td>
+          <a
+            href="{{url_for('deleteTable', id=el.id)}}"
+            class="btn btn-ghost btn-xs text-error"
+          >
+            <i class="fas fa-trash"></i>
+          </a>
+        </td>
+      </tr>
+      {%endfor%}
+    </tbody>
+    <!-- foot -->
+    {%if table_data|length > 15 %}
+    <tfoot>
+      <tr>
+        <th>Reservation ID</th>
+        <th>Nom</th>
+        <th>Numéro de téléphone</th>
+        <th>Email</th>
+        <th>N° des Persone</th>
+        <th>Date de reservation</th>
+        <th>options</th>
+      </tr>
+    </tfoot>
+    {%endif%}
+  </table>
+</div>
+
+{%endblock%}

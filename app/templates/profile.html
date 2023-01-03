@@ -1,0 +1,12 @@
+{% extends 'base.html'%} {%block head%}
+
+<title>profile</title>
+
+{%endblock%} {%block body%}
+<div class="self-start">
+    <p>{{user.name}}</p>
+    <p>{{user.username}}</p>
+    <p>{{user.email}}</p>
+    {{user.avatar}}
+</div>
+{%endblock%}

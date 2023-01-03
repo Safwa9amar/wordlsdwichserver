@@ -295,8 +295,27 @@ class Promotion(db.Model):
 
     def __repr__(self) -> str:
         return '<Promotion %r>' % self.id
+    
+    
+class TableReservation(db.Model):
+    __tablename__ = 'table_reservation'
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    nom = db.Column(db.String(200), nullable=False)
+    phone = db.Column(db.String(200), nullable=False)
+    email = db.Column(db.String(200), nullable=False)
+    person_count = db.Column(db.Integer, nullable=False)
+    
+    def __repr__(self) -> str:
+        return '<Table %r>' % self.id
 
 # generate CommandTypeSchema for CommandType class
+
+class TableReservationSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Promotion
+        load_instance = True
+        include_fk = True
 
 class PromotionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
