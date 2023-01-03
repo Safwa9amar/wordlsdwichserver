@@ -71,6 +71,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(80))
     name = db.Column(db.String(80))
     email = db.Column(db.String(120), unique=True, nullable=False)
+    avatar = db.Column(db.String(2500), nullable=False)
 
     def __init__(self, username, password, name, email):
         self.username = username

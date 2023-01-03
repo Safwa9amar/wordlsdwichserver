@@ -14,7 +14,7 @@ from flask import render_template, url_for, request, redirect, jsonify, make_res
 from flask_cors import CORS, cross_origin
 from sqlalchemy import desc
 
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user 
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
@@ -55,8 +55,9 @@ def get_client_order():
         Note = data['Note']
         # print(order)
         promotion = []
-        [promotion.append(el['category']) for el in order if el['category'] not in promotion]
-      
+        [promotion.append(el['category'])
+         for el in order if el['category'] not in promotion]
+
         DamandeType = data['DamandeType']
         if client:
             order_data = []
@@ -80,12 +81,12 @@ def get_client_order():
                         "SelectedBoisson": SelectedBoisson
                     }
                 )
-                          
+
             order = Order(
                 customer_id=client.id,
                 order=str(order_data),
                 DamandeType=str(DamandeType),
-                Note = Note
+                Note=Note
             )
             db.session.flush()
             db.session.add(order)
@@ -94,11 +95,11 @@ def get_client_order():
             for el in promotion:
                 cat = Categories.query.filter_by(id=el).first()
                 promo = Promotion(
-                    promotionGlobal = globalPromo.value,
-                    categoryID = el,
-                    cutting_off = cat.cutting_off,
-                    cutting_off_status = cat.cutting_off_status,
-                    orderID = order.id,
+                    promotionGlobal=globalPromo.value,
+                    categoryID=el,
+                    cutting_off=cat.cutting_off,
+                    cutting_off_status=cat.cutting_off_status,
+                    orderID=order.id,
                 )
                 db.session.add(promo)
 
@@ -107,11 +108,10 @@ def get_client_order():
                 customer_id=client.id,
                 order_id=order.id,
             )
-           
+
             db.session.add(notif)
             db.session.commit()
-            
-        
+
             return {"client_id": client.id, "order": order_data, "isConfirmed": True, 'OrderNum': order.id}
         else:
             # print({"client_id": client.id, "order": order_data})
@@ -230,6 +230,7 @@ def login():
         password = request.form['password']
 
         user = User.query.filter_by(username=user).first()
+        print(generate_password_hash(password))
         print('login start', user, password)
 
         if user and user.verify_password(password):
@@ -241,10 +242,37 @@ def login():
 
     return render_template('login.html')
 
+
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
     print(current_user)
+    if request.method == 'POST':
+        user = User.query.filter_by(username=current_user.username).first()
+        user.name = request.form['name']
+        user.username = request.form['username']
+        user.email = request.form['email']
+        password = request.form['password']
+        check = True
+
+        if len(password) > 0:
+            if password == request.form['password_confirm']:
+                user.password = generate_password_hash(password)
+            else:
+                flash("Le mot de passe ne correspond pas !", 'error')
+                check = False
+                
+        if request.files['avatar']:
+            file = request.files['avatar']
+            filename = secure_filename(file.filename).split('.')[1]
+            filename = f'{user.username}.{filename}'
+            file.save(os.path.join(
+                app.config['IMAGES_FOLDER'], filename))
+            user.avatar = filename
+        db.session.commit() if check else None
+        flash("Profile Updated!", "success")
+
+        return redirect(url_for('profile'))
     return render_template('profile.html', user=current_user)
 
 
@@ -255,7 +283,7 @@ def dashbord():
     orders_data = Order.query.all()
     clients_data = Customer.query.all()
 
-    return render_template('index.html', categories_data=dd, orders_data=orders_data, clients_data=clients_data)
+    return render_template('index.html', categories_data=dd, orders_data=orders_data, clients_data=clients_data, user=current_user)
 
 
 @app.context_processor
@@ -319,7 +347,6 @@ def rating():
             return jsonify({'info': 'you are not registred'}), 401
 
     return ""
- 
 
 
 @app.route('/confirmer_deliver', methods=['POST'])
@@ -395,7 +422,7 @@ def api():
             el.pop('_recipes')
 
         category = {'id': _id, 'name':  str(_name),
-                    'img': str(img), 'icon': str(icon), 'cutting_off' : cutting_off, 'cutting_off_status' : cutting_off_status ,'with_menu': with_menu ,'list': list}
+                    'img': str(img), 'icon': str(icon), 'cutting_off': cutting_off, 'cutting_off_status': cutting_off_status, 'with_menu': with_menu, 'list': list}
         newOutputs.append(category)
     # print(recipes)
 
@@ -439,17 +466,19 @@ def orders():
         # print(detaills)
         FinalDetaills = []
         newDetaills = []
-        data = [newDetaills.append(el['category_id']) for el in detaills if el['category_id'] not in newDetaills]
+        data = [newDetaills.append(el['category_id'])
+                for el in detaills if el['category_id'] not in newDetaills]
         for detaill in newDetaills:
-            cat =  Promotion.query.filter_by(orderID=order.id).filter_by(categoryID=detaill).first()
+            cat = Promotion.query.filter_by(
+                orderID=order.id).filter_by(categoryID=detaill).first()
             print(cat)
             newObj = {
-                "orderID": order.id, 
-                "categoryID" :detaill,
-                "categoryCutting_off" :cat.cutting_off,
-                "categoryCutting_off_status" :cat.cutting_off_status,
-                "promotionGlobal" : cat.promotionGlobal,
-                "dataList" : [el for el in detaills if el['category_id'] == detaill]
+                "orderID": order.id,
+                "categoryID": detaill,
+                "categoryCutting_off": cat.cutting_off,
+                "categoryCutting_off_status": cat.cutting_off_status,
+                "promotionGlobal": cat.promotionGlobal,
+                "dataList": [el for el in detaills if el['category_id'] == detaill]
             }
             FinalDetaills.append(newObj)
 
@@ -499,9 +528,12 @@ def orders():
             totalForThis = 0
             for el in montantsForThis:
                 totalForThis += float(el)
-            totalForThis = totalForThis - (totalForThis * FinalDetaill['categoryCutting_off'])/100 if FinalDetaill['categoryCutting_off_status'] else totalForThis
+            totalForThis = totalForThis - \
+                (totalForThis * FinalDetaill['categoryCutting_off']) / \
+                100 if FinalDetaill['categoryCutting_off_status'] else totalForThis
             # print(totalForThis)
-            montants.append(totalForThis - (totalForThis * FinalDetaill['promotionGlobal'])/100 )
+            montants.append(totalForThis - (totalForThis *
+                            FinalDetaill['promotionGlobal'])/100)
 
         total = 0
         for montant in montants:
@@ -546,12 +578,10 @@ def deleteOrder(id):
     order = Order.query.filter_by(id=id).first()
     Notification.query.filter_by(customer_id=order.customer_id).delete()
     Promotion.query.filter_by(orderID=order.id).delete()
-    
+
     db.session.delete(order)
     db.session.commit()
     return redirect(url_for('orders'))
-
-
 
 
 @app.route('/clients')
@@ -570,7 +600,6 @@ def deleteClient(id):
     db.session.delete(client)
     db.session.commit()
     return redirect(url_for('clients'))
-
 
 
 @app.route('/edit_sup_status', methods=['POST'])
@@ -613,7 +642,7 @@ def update_supp(id):
     if request.method == 'POST':
         updated_uploaded_image = request.files['image']
         if updated_uploaded_image.filename != '':
-            img_filename =  f'supp_{secure_filename(updated_uploaded_image.filename)}'
+            img_filename = f'supp_{secure_filename(updated_uploaded_image.filename)}'
 
             updated_img_file_path = os.path.join(
                 app.config['IMAGES_FOLDER'], img_filename)
@@ -888,8 +917,9 @@ def Update(id):
 
         item_to_update.name = request.form['name']
         item_to_update.cutting_off = request.form['cutting_off']
-        
-        item_to_update.cutting_off_status = True if len(request.form.getlist('cutting_off_status')) > 0 else False
+
+        item_to_update.cutting_off_status = True if len(
+            request.form.getlist('cutting_off_status')) > 0 else False
         item_to_update.icon_url = icon_filename
         item_to_update.img_url = img_filename
 
@@ -1055,9 +1085,8 @@ def settings():
     SoundNotification = notificationSound.query.first()
     client_status = clientStatus.query.first()
     Global_Promotion = GlobalPromotion.query.first()
-    
-    
-    return render_template('settings.html',  DeleveryAdress=LivraisonAdrrs, WorkHours=Work__Hours, contactInfo=contactInfo, SoundNotification=SoundNotification, client_status=client_status, Global_Promotion = Global_Promotion)
+
+    return render_template('settings.html',  DeleveryAdress=LivraisonAdrrs, WorkHours=Work__Hours, contactInfo=contactInfo, SoundNotification=SoundNotification, client_status=client_status, Global_Promotion=Global_Promotion)
 
 
 @app.route('/settings/api/faris', methods=["GET", "POST"])
@@ -1219,7 +1248,6 @@ def livraison_adresses_status():
         return jsonify(data)
 
 
-
 @app.route('/settings/api/client_status', methods=["POST", "GET"])
 def client_status():
     data = clientStatus.query.first()
@@ -1239,10 +1267,9 @@ def client_status():
             )
             db.session.add(newData)
             db.session.commit()
-        return {"res" : "ok"}
-    
-    
-    
+        return {"res": "ok"}
+
+
 @app.route('/settings/api/globalPromotion', methods=["POST", "GET"])
 def global_promotion():
     data = GlobalPromotion.query.first()
@@ -1258,24 +1285,24 @@ def global_promotion():
                 db.session.commit()
         else:
             newData = GlobalPromotion(
-                value= globalPromotion,
+                value=globalPromotion,
             )
             db.session.add(newData)
             db.session.commit()
-        return {"res" : "ok"}
+        return {"res": "ok"}
 
 
 @app.route('/table-reservation', methods=["GET", "POST"])
 @ login_required
 def reserve_table():
-    
+
     data = TableReservation.query.all()
     return render_template('table_reservation.html', table_data=data)
 
 
 @app.route('/bookings', methods=["POST", "GET"])
 def reserve_table_from_client():
-    # save the table reservation in the database 
+    # save the table reservation in the database
     if request.method == "POST":
         formData = request.get_json()
         print(formData)
@@ -1303,6 +1330,7 @@ def deleteTable(id):
     TableReservation.query.filter_by(id=id).delete()
     db.session.commit()
     return redirect(url_for('reserve_table'))
+
 
 @ app.errorhandler(404)
 @ login_required

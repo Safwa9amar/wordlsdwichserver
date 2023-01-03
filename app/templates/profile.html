@@ -3,10 +3,114 @@
 <title>profile</title>
 
 {%endblock%} {%block body%}
-<div class="self-start">
-    <p>{{user.name}}</p>
-    <p>{{user.username}}</p>
-    <p>{{user.email}}</p>
-    {{user.avatar}}
+<div class="flex h-full w-full justify-center items-center">
+  <div class="flex gap-10">
+    <div>
+      <img
+        class="border-2 border-accent rounded-full h-42 w-42 max-w-xs"
+        src="{{url_for('static', filename='images/' + user.avatar )}}"
+      />
+
+      <br />
+      {% with success = get_flashed_messages(category_filter=["success"]) %}
+
+      {% for succes in success %}
+      <div class="alert alert-success">
+        <div class="alert-title">Success</div>
+        <p>{{succes}}</p>
+      </div>
+      
+      {% endfor %} 
+      {% endwith %}
+
+      {% with errors = get_flashed_messages(category_filter=["error"]) %}
+      {%for err in errors %}
+      <div class="alert alert-error">
+        <div class="alert-title">Error</div>
+        <p>{{err}}</p>
+      </div>
+      {%endfor%}
+      {% endwith %}
+
+    </div>
+    <form
+      action="{{url_for('profile')}}"
+      method="POST"
+      enctype="multipart/form-data"
+    >
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Nom </span>
+        </label>
+        <input
+          name="name"
+          type="text"
+          value="{{user.name}}"
+          class="input input-bordered"
+        />
+      </div>
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Nom d'utilisateur </span>
+        </label>
+        <input
+          name="username"
+          type="text"
+          value="{{user.username}}"
+          class="input input-bordered"
+        />
+      </div>
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Email de récupération </span>
+        </label>
+        <input
+          name="email"
+          type="text"
+          value="{{user.email}}"
+          class="input input-bordered"
+        />
+      </div>
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">mettre à jour de mot de pass </span>
+        </label>
+        <input
+          name="password"
+          placeholder="nouveau mot de passe"
+          type="password"
+          class="input input-bordered"
+        />
+      </div>
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Confirme mot de pass </span>
+        </label>
+        <input
+          name="password_confirm"
+          placeholder="Confirmation mot de passe"
+          type="password"
+          class="input input-bordered"
+        />
+      </div>
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Profile photo</span>
+        </label>
+        <input
+          name="avatar"
+          type="file"
+          accept="image/*"
+          class="file-input file-input-bordered file-input-accent w-full max-w-xs"
+        />
+      </div>
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Profile photo</span>
+        </label>
+        <input type="submit" value="Sauvegarder" class="btn btn-accent" />
+      </div>
+    </form>
+  </div>
 </div>
 {%endblock%}
