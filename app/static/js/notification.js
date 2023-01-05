@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let notif_indicator = document.getElementById("notif_indicator");
 
   // const socket = io(`http://${document.domain}:${location.port}/test`);
-  // const url = `${location.origin}/dashboard`;
-  const url = `${location.origin}`;
+  const url = `${location.origin}/dashboard`;
+  // const url = `${location.origin}`;
 
   let audio = new Audio(`${url}/static/sounds/notifications-sound.mp3`);
   // async function fetshNotification

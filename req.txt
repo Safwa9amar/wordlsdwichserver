@@ -50,3 +50,4 @@ zope.interface==5.4.0
 flask-socketio
 python-dateutil
 pymysql
+flask-qrcode

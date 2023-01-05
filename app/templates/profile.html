@@ -5,12 +5,11 @@
 {%endblock%} {%block body%}
 <div class="flex h-full w-full justify-center items-center">
   <div class="flex gap-10">
-    <div>
+    <div class="flex flex-col items-center">
       <img
         class="border-2 border-accent rounded-full h-42 w-42 max-w-xs"
-        src="{{url_for('static', filename='images/' + user.avatar )}}"
+        src="{{url_for('static', filename='images/' + current_user.avatar )}}"
       />
-
       <br />
       {% with success = get_flashed_messages(category_filter=["success"]) %}
 
@@ -45,7 +44,7 @@
         <input
           name="name"
           type="text"
-          value="{{user.name}}"
+          value="{{current_user.name}}"
           class="input input-bordered"
         />
       </div>
@@ -54,9 +53,9 @@
           <span class="label-text">Nom d'utilisateur </span>
         </label>
         <input
-          name="username"
+          name="current_username"
           type="text"
-          value="{{user.username}}"
+          value="{{current_user.username}}"
           class="input input-bordered"
         />
       </div>
@@ -67,7 +66,7 @@
         <input
           name="email"
           type="text"
-          value="{{user.email}}"
+          value="{{current_user.email}}"
           class="input input-bordered"
         />
       </div>

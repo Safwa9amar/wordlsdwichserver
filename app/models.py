@@ -23,14 +23,13 @@ class Customer(db.Model):
     password = db.Column(db.String(80))
     Nom = db.Column(db.String(80),  nullable=False)
     Prenom = db.Column(db.String(80), nullable=False)
-    Tel = db.Column(db.Integer, unique=True, nullable=False)
+    Tel = db.Column(db.String(255), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     # adress = db.Column(db.String(120), unique=True, nullable=False)
     join_date = db.Column(db.DateTime, default=datetime.utcnow)
     
     # adress relation 
     adress = db.Column(db.Integer, ForeignKey("Livraison_adresses.id"))
-    
 
     def __init__(self, username, password, Nom, email, Prenom, Tel, adress):
         self.username = username

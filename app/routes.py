@@ -1,3 +1,4 @@
+from flask_mail import Mail, Message
 from flask import render_template, url_for, flash, redirect
 from app import app, db
 
@@ -238,7 +239,8 @@ def login():
             login_user(user)
             return redirect(url_for('dashbord'))
         else:
-            flash("Login ivalido!")
+            flash(
+                "la connexion a échoué, réessayez ou vérifiez vos informations d'identification !")
 
     return render_template('login.html')
 
@@ -261,7 +263,7 @@ def profile():
             else:
                 flash("Le mot de passe ne correspond pas !", 'error')
                 check = False
-                
+
         if request.files['avatar']:
             file = request.files['avatar']
             filename = secure_filename(file.filename).split('.')[1]
@@ -269,11 +271,13 @@ def profile():
             file.save(os.path.join(
                 app.config['IMAGES_FOLDER'], filename))
             user.avatar = filename
-        db.session.commit() if check else None
-        flash("Profile Updated!", "success")
+
+        if check:
+            db.session.commit()
+            flash("Profile Updated!", "success")
 
         return redirect(url_for('profile'))
-    return render_template('profile.html', user=current_user)
+    return render_template('profile.html')
 
 
 @app.route('/')
@@ -282,8 +286,7 @@ def dashbord():
     dd = Categories.query.order_by(Categories.id).all()
     orders_data = Order.query.all()
     clients_data = Customer.query.all()
-
-    return render_template('index.html', categories_data=dd, orders_data=orders_data, clients_data=clients_data, user=current_user)
+    return render_template('index.html', categories_data=dd, orders_data=orders_data, clients_data=clients_data)
 
 
 @app.context_processor
