@@ -146,6 +146,11 @@ def registre_client():
                     "Prenom": client.Prenom,
                     "Tel": client.Tel,
                     "adress": LivraisonAdressSchema().dump(LivraisonAdress.query.filter_by(id=client.adress).first()),
+                    "adress_exct": client.adress_exct,
+                    "batiment": client.batiment,
+                    "etage": client.etage,
+                    "sonnerie": client.sonnerie,
+                    "code": client.code,
                     "last_order": OrderSchema().dump(Order.query.order_by(Order.id.desc()).filter_by(customer_id=client.id).first())
 
                 }
@@ -171,6 +176,11 @@ def registre_client():
                         "Prenom": client.Prenom,
                         "Tel": client.Tel,
                         "adress": LivraisonAdressSchema().dump(LivraisonAdress.query.filter_by(id=client.adress).first()),
+                        "adress_exct": client.adress_exct,
+                        "batiment": client.batiment,
+                        "etage": client.etage,
+                        "sonnerie": client.sonnerie,
+                        "code": client.code,
                         "last_order": OrderSchema().dump(Order.query.order_by(Order.id.desc()).filter_by(customer_id=client.id).first())
                     }
                     return jsonify(access_token=access_token, refresh_token=refresh_token, userData=userData), 200
@@ -194,7 +204,6 @@ def registre_client():
                         identity=json['username'])
                     refresh_token = create_refresh_token(
                         identity=json['username'])
-
                     client = Customer(
                         username=json['username'],
                         password=json['password'],
@@ -203,6 +212,12 @@ def registre_client():
                         Tel=json['tel'],
                         email=json['email'],
                         adress=json['adress'],
+
+                        adress_exct=json['adresse_exct'],
+                        batiment=json['batiment'],
+                        etage=json['etage'],
+                        sonnerie=True if json['sonnette'] == 'oui' else False,
+                        code=json['code'],
                     )
                     db.session.add(client)
                     db.session.commit()
@@ -215,7 +230,12 @@ def registre_client():
                         "email": client.email,
                         "Prenom": client.Prenom,
                         "Tel": client.Tel,
-                        "adress": client.adress,
+                        "adress": LivraisonAdressSchema().dump(LivraisonAdress.query.filter_by(id=client.adress).first()),
+                        "adress_exct": client.adress_exct,
+                        "batiment": client.batiment,
+                        "etage": client.etage,
+                        "sonnerie": client.sonnerie,
+                        "code": client.code,
                         "last_order": OrderSchema().dump(Order.query.order_by(Order.id.desc()).filter_by(customer_id=client.id).first())
 
                     }
@@ -591,7 +611,8 @@ def deleteOrder(id):
 @login_required
 def clients():
     clients_data = Customer.query.all()
-    return render_template('clients.html', clients_data=clients_data, Order=Order)
+
+    return render_template('clients.html', clients_data=clients_data, Order=Order, LivraisonAdress=LivraisonAdress)
 
 
 @app.route('/deleteClient/<int:id>', methods=['POST', 'GET'])

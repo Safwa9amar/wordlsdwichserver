@@ -28,7 +28,23 @@
         
 
 
-      <p>Client : {{order_data.client.Nom}} {{order_data.client.Prenom}}</p>
+      <p> <span class="font-bold">Client</span> : {{order_data.client.Nom}} {{order_data.client.Prenom}}</p>
+      <p>
+        <span class="font-bold">Adresse</span> : {{order_data.client.adress_exct}}
+          <br />
+          <span class="font-bold">Bâtiment </span> : {{order_data.client.batiment}}
+          <br />
+          <span class="font-bold capitalize">étage </span> : {{order_data.client.etage}}
+          <br />
+          <span class="font-bold capitalize">Sonnerie </span> : {%if
+          order_data.client.sonnerie%}
+          <span class="badge badge-success badge-sm"> Oui </span>
+          {%else%}
+          <span class="badge badge-error badge-sm">Non</span>
+          {%endif%}
+          <br />
+          <span class="font-bold capitalize">Code </span> : {{order_data.client.code}}
+      </p>
       <!-- <p>{{order_data.client.adress}}</p> -->
       <!-- <p>id : {{order_data.client.id}}</p> -->
       <br>

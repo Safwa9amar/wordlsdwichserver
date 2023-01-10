@@ -43,7 +43,24 @@
           >
         </td>
         <td>{{el.Nom}} {{el.Prenom}}</td>
-        <td>{{el.adress}}</td>
+        <td class="capitalize">
+          <span class="font-bold">Quartier</span> : {{LivraisonAdress.query.filter_by(id=el.adress).first().name}}
+          <br />
+          <span class="font-bold">Adresse</span> : {{el.adress_exct}}
+          <br />
+          <span class="font-bold">Bâtiment </span> : {{el.batiment}}
+          <br />
+          <span class="font-bold capitalize">étage </span> : {{el.etage}}
+          <br />
+          <span class="font-bold capitalize">Sonnerie </span> : {%if
+          el.sonnerie%}
+          <span class="badge badge-success badge-sm"> Oui </span>
+          {%else%}
+          <span class="badge badge-error badge-sm">Non</span>
+          {%endif%}
+          <br />
+          <span class="font-bold capitalize">Code </span> : : {{el.code}}
+        </td>
         <!-- <td>Purple</td> -->
         <td>
           {%if Order.query.order_by(Order.id.desc()).filter_by(customer_id
@@ -62,16 +79,12 @@
         </td>
         <td>
           <a
-          href="{{url_for('deleteClient', id=el.id)}}"
+            href="{{url_for('deleteClient', id=el.id)}}"
             class="btn btn-ghost btn-xs text-error"
-            >
+          >
             <i class="fas fa-trash"></i>
-
-          
           </a>
-        
         </td>
-
       </tr>
       {%endfor%}
     </tbody>

@@ -25,13 +25,23 @@ class Customer(db.Model):
     Prenom = db.Column(db.String(80), nullable=False)
     Tel = db.Column(db.String(255), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    # adress = db.Column(db.String(120), unique=True, nullable=False)
     join_date = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # adress relation 
+    # ADRESS AND INFORMATIONS
+
+    adress_exct = db.Column(db.String(255), nullable=False)
+    batiment = db.Column(db.String(255), nullable=False)
+    etage = db.Column(db.Integer, nullable=False)
+    sonnerie = db.Column(db.Boolean, default=False)
+    code = db.Column(db.Integer, nullable=False)
+
+    # adress  Quartier
     adress = db.Column(db.Integer, ForeignKey("Livraison_adresses.id"))
 
-    def __init__(self, username, password, Nom, email, Prenom, Tel, adress):
+    def __init__(self, username, password, Nom, email, Prenom, Tel, adress, adress_exct,
+                 batiment,
+                 etage,
+                 sonnerie,
+                 code):
         self.username = username
         self.password = generate_password_hash(password)
         self.Nom = Nom
@@ -39,6 +49,11 @@ class Customer(db.Model):
         self.Prenom = Prenom
         self.Tel = Tel
         self.adress = adress
+        self.adress_exct = adress_exct
+        self.batiment = batiment
+        self.etage = etage
+        self.sonnerie = sonnerie
+        self.code = code
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -92,7 +107,6 @@ class Categories(db.Model):
     icon_url = db.Column(db.String(200), nullable=False)
     cutting_off = db.Column(db.Float, nullable=False)
     cutting_off_status = db.Column(db.Boolean, nullable=False, default=False)
-    
 
     def __repr__(self) -> str:
         return '<Categories %r>' % self.id
@@ -224,7 +238,6 @@ class LivraisonAdress(db.Model):
     price = db.Column(db.Float, nullable=False)
     frais_price = db.Column(db.Float, nullable=False)
     isActived = db.Column(db.Boolean, default=True)
-    
 
     def __repr__(self) -> str:
         return '<Adress %r>' % self.id
@@ -254,6 +267,7 @@ class Contact(db.Model):
     def __repr__(self) -> str:
         return '<Contact %r>' % self.id
 
+
 class notificationSound(db.Model):
     __tablename__ = 'notification_sound'
     id = db.Column(db.Integer, primary_key=True)
@@ -261,8 +275,8 @@ class notificationSound(db.Model):
 
     def __repr__(self) -> str:
         return '<Notification_sound %r>' % self.id
-    
-    
+
+
 class clientStatus(db.Model):
     __tablename__ = 'client_status'
     id = db.Column(db.Integer, primary_key=True)
@@ -270,33 +284,34 @@ class clientStatus(db.Model):
 
     def __repr__(self) -> str:
         return '<client_status %r>' % self.id
-    
-    
+
+
 class GlobalPromotion(db.Model):
     __tablename__ = 'global_promotion'
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.Integer, nullable=False)
+
     def __repr__(self) -> str:
         return '<global_promotion %r>' % self.id
-    
-    
+
+
 class Promotion(db.Model):
     __tablename__ = 'promotion'
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     promotionGlobal = db.Column(db.Float, nullable=False, default=0)
-    
+
     # relation for category
     categoryID = db.Column(db.Integer, ForeignKey("categories.id"))
     cutting_off = db.Column(db.Float, nullable=False)
     cutting_off_status = db.Column(db.Boolean, nullable=False, default=False)
-     # relation for order
+    # relation for order
     orderID = db.Column(db.Integer, ForeignKey("order.id"))
 
     def __repr__(self) -> str:
         return '<Promotion %r>' % self.id
-    
-    
+
+
 class TableReservation(db.Model):
     __tablename__ = 'table_reservation'
     id = db.Column(db.Integer, primary_key=True)
@@ -305,17 +320,19 @@ class TableReservation(db.Model):
     phone = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200), nullable=False)
     person_count = db.Column(db.Integer, nullable=False)
-    
+
     def __repr__(self) -> str:
         return '<Table %r>' % self.id
 
 # generate CommandTypeSchema for CommandType class
+
 
 class TableReservationSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Promotion
         load_instance = True
         include_fk = True
+
 
 class PromotionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -331,19 +348,21 @@ class GlobalPromotionSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_fk = True
 
+
 class clientStatusSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = clientStatus
         load_instance = True
         include_fk = True
-        
+
 
 class notificationSoundSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = notificationSound
         load_instance = True
         include_fk = True
-        
+
+
 class ContactSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Contact
